@@ -1,0 +1,55 @@
+# --- ROS2 Build Folders ---
+install/
+build/
+log/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.renpy-tmp-nfs
+
+# --- C++ / Build Systems ---
+*.o
+*.obj
+*.so
+*.a
+*.lib
+*.dll
+*.exe
+*.out
+*.app
+.cmake/
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+Makefile
+
+# --- IDEs (VS Code, CLion, etc.) ---
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+*~
+
+# --- OS generated files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- ROS specific (Local setup files) ---
+.colcon/
