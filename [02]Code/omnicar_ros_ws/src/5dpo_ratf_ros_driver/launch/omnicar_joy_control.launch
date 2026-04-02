@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find sdpo_ratf_ros_driver)/launch/sdpo_ratf_ros_driver.launch" />
+
+  <include file="$(find sdpo_driver_omnijoy)/launch/sdpo_driver_omnijoy_logif710.launch" />
+
+  <include file="$(find sdpo_ros_odom)/launch/sdpo_ros_odom_wh.launch" />
+</launch>

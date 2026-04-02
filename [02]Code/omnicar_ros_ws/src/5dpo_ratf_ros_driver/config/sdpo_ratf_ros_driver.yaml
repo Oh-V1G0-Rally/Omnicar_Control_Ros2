@@ -1,0 +1,3 @@
+encoder_res: 64.0
+gear_reduction: 18.75
+serial_port_name: "/dev/ttyUSB0"
