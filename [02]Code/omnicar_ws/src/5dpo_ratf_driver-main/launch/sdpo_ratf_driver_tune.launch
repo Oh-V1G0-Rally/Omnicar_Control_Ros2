@@ -1,0 +1,35 @@
+<launch>
+
+  <arg name="robot_id" default="$(optenv ROBOT_ID unnamed_robot)"/>
+
+  <arg name="battery" default="11.1"/>
+
+  <arg name="bags_directory" default="$(find sdpo_ratf_driver)/bag/ros1"/>
+  <arg name="include_topics" default="/$(arg robot_id)/motors_data"/>
+  <arg name="node_start_delay" default="0.0"/>
+
+
+
+  <group ns="$(arg robot_id)">
+
+    <node pkg="sdpo_ratf_driver" type="sdpo_ratf_driver_tune"
+        name="sdpo_ratf_driver" clear_params="true"
+        output="$(optenv ROBOT_OUTPUT screen)">
+
+      <param name="encoder_res" value="64.0"/>
+      <param name="gear_reduction" value="43.8"/>
+      <param name="serial_port_name" value="/dev/omnicar_esp32"/>
+
+      <param name="mot_ctrl_freq" value="100"/>
+      <param name="max_mot_pwm"   value="1023"/>
+
+    </node>
+
+    <node pkg="rosbag" type="record" name="log"
+        args="--buffsize=1024 --bz2 --output-prefix $(arg bags_directory)/log_tune_batt-$(arg battery) '$(arg include_topics)'"
+        output="$(optenv ROBOT_OUTPUT screen)"
+        launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@'"/>
+
+  </group>
+
+</launch>

@@ -1,0 +1,13 @@
+# - Config file for the serial_communication_channels package
+# It defines the following variables
+#  serial_communication_channels_INCLUDE_DIRS - include directories for FooBar
+#  serial_communication_channels_LIBRARIES    - libraries to link against
+#  serial_communication_channels_EXECUTABLE   - the bar executable
+
+set(serial_communication_channels_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${serial_communication_channels_DIR}/export_serial_communication_channels.cmake")
+
+# These are IMPORTED targets created by serial_communication_channelsTargets.cmake
+set(serial_communication_channels_LIBRARIES serial_communication_channels)

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd"
+    schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
+
+  <name>sdpo_ratf_driver</name>
+
+  <version>0.0.0</version>
+
+  <description>
+    ROS package to communicate with the firmware present in the 5dpo Robotics
+    Team's robot for the Robot@Factory 4.0 competition in the scope of the
+    Portuguese Robotics Open (FNR).
+    This package should be compatible with both versions of the firmware
+    existent for the robot - Arduino Mega and Teensy 4.1 boards, respectively.
+    Just make sure that the baud rate set for the driver is the same one as in
+    the Arduino Mega's firmware. For the Teensy version, the board should be
+    able to interpret whatever baud rate you set from the driver's side.
+  </description>
+
+
+
+  <url type="github">https://github.com/5dpo/5dpo_ratf_driver</url>
+
+
+
+  <maintainer email="sousa.ricardob@outlook.com">Ricardo B. Sousa</maintainer>
+
+
+
+  <author email="amoreira@fe.up.pt">António Paulo Moreira</author>
+  <author email="claudia.d.rocha@inesctec.pt">Cláudia Daniela Rocha</author>
+  <author email="joao.g.martins@inesctec.pt">João G. Martins</author>
+  <author email="jose.m.sarmento@inesctec.pt">José Maria Sarmento</author>
+  <author email="up201806263@edu.fe.up.pt">José Pedro Carvalho</author>
+  <author email="maria.s.lopes@inesctec.pt">Maria S. Lopes</author>
+  <author email="paco@fe.up.pt">Paulo G. Costa</author>
+  <author email="heber.m.sobreira@inesctec.pt">Héber Miguel Sobreira</author>
+  <author email="sousa.ricardob@outlook.com">Ricardo B. Sousa</author>
+
+
+
+
+
+  <license>TODO</license>
+
+
+
+
+
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+
+
+
+  <depend condition="$ROS_VERSION == 2">rclcpp</depend>
+  <depend condition="$ROS_VERSION == 1">roscpp</depend>
+
+  <depend>sdpo_drivers_interfaces</depend>
+  <depend>sdpo_serial_port</depend>
+  <depend>serial_communication_channels</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+
+
+
+  <test_depend condition="$ROS_VERSION == 2">ament_lint_auto</test_depend>
+  <test_depend condition="$ROS_VERSION == 2">ament_lint_common</test_depend>
+
+
+
+
+
+  <export>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+    <build_type condition="$ROS_VERSION == 1">catkin</build_type>
+  </export>
+
+</package>

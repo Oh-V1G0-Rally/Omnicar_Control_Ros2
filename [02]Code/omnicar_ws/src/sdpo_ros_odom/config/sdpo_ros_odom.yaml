@@ -1,0 +1,15 @@
+/**:
+  ros__parameters:
+    steering_geometry: omni4
+    w_ref_max_enabled: true
+    w_ref_max: 55.0
+    rob_dist_between_front_back_wh: 0.185
+    rob_dist_between_left_right_wh: 0.220
+    wh_front_left_diam: 0.06
+    wh_front_left_inv: false
+    wh_front_right_diam: 0.06
+    wh_front_right_inv: true
+    wh_back_left_diam: 0.06
+    wh_back_left_inv: false
+    wh_back_right_diam: 0.06
+    wh_back_right_inv: true

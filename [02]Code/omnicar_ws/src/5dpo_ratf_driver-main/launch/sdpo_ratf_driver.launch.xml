@@ -1,0 +1,20 @@
+<launch>
+
+  <arg name="robot_id" default="$(env ROBOT_ID 'unnamed_robot')"/>
+
+
+
+  <node pkg="sdpo_ratf_driver" exec="sdpo_ratf_driver_node"
+      name="sdpo_ratf_driver"
+      namespace="$(var robot_id)">
+
+    <param name="encoder_res" value="64.0"/>
+    <param name="gear_reduction" value="18.75"/>
+    <param name="serial_port_name" value="/dev/omnicar_esp32"/>
+
+    <param name="mot_ctrl_freq" value="50"/>
+    <param name="max_mot_pwm"   value="1023"/>
+
+  </node>
+
+</launch>

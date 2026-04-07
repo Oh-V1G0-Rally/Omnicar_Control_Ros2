@@ -1,0 +1,24 @@
+<launch>
+
+  <arg name="robot_id" default="$(optenv ROBOT_ID unnamed_robot)"/>
+
+
+
+  <group ns="$(arg robot_id)">
+
+    <node pkg="sdpo_ratf_driver" type="sdpo_ratf_driver_node"
+        name="sdpo_ratf_driver" clear_params="true"
+        output="$(optenv ROBOT_OUTPUT screen)">
+
+      <param name="encoder_res" value="64.0"/>
+      <param name="gear_reduction" value="18.75"/>
+      <param name="serial_port_name" value="/dev/omnicar_esp32"/>
+
+      <param name="mot_ctrl_freq" value="50"/>
+      <param name="max_mot_pwm"   value="1023"/>
+
+    </node>
+
+  </group>
+
+</launch>
