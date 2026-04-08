@@ -125,8 +125,11 @@ if("$ENV{ROS_VERSION}" STREQUAL "2")
 
   # Launch Files Installation Rules
   install(
-    DIRECTORY launch
-    DESTINATION share/${PROJECT_NAME}
+    DIRECTORY launch/
+    DESTINATION share/${PROJECT_NAME}/launch
+    FILES_MATCHING
+      PATTERN "*.launch.py"
+      PATTERN "*.launch.xml"
   )
 
   # Testing
@@ -227,8 +230,10 @@ elseif("$ENV{ROS_VERSION}" STREQUAL "1")
   )
 
   install(
-    DIRECTORY launch
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+    DIRECTORY launch/
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+    FILES_MATCHING
+      PATTERN "*.launch"
   )
 
 

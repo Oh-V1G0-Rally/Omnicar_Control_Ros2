@@ -15,19 +15,6 @@ def generate_launch_description():
         ),
         Node(
             package="sdpo_ros_odom",
-            executable="sdpo_ros_odom_cmd_vel_node",
-            name="sdpo_ros_odom_cmd_vel",
-            namespace=robot_id,
-            parameters=[
-                PathJoinSubstitution([
-                    FindPackageShare("sdpo_ros_odom"),
-                    "config",
-                    "sdpo_ros_odom_cmd_vel.yaml",
-                ])
-            ],
-        ),
-        Node(
-            package="sdpo_ros_odom",
             executable="sdpo_ros_odom_wh_node",
             name="sdpo_ros_odom_wh",
             namespace=robot_id,

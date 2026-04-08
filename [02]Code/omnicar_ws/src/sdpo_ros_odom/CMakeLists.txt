@@ -12,7 +12,10 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(sdpo_drivers_interfaces REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 function(_fix_sdpo_imported_location target_name library_name)
   if(TARGET ${target_name})
@@ -41,7 +44,20 @@ add_executable(${PROJECT_NAME}_cmd_vel_node
   src/cmd_vel_to_motors_ref_node.cpp
 )
 
+add_executable(${PROJECT_NAME}_wh_node
+  src/main_wh.cpp
+  src/sdpo_ros_odom/OdomWhMotorDrive.cpp
+  src/sdpo_ros_odom/OdomWhOmni4.cpp
+  src/sdpo_ros_odom/OdomWhROS2.cpp
+  src/sdpo_ros_odom/utils.cpp
+)
+
 target_include_directories(${PROJECT_NAME}_cmd_vel_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_include_directories(${PROJECT_NAME}_wh_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
@@ -51,11 +67,24 @@ ament_target_dependencies(${PROJECT_NAME}_cmd_vel_node
   geometry_msgs
 )
 
+ament_target_dependencies(${PROJECT_NAME}_wh_node
+  rclcpp
+  geometry_msgs
+  nav_msgs
+  sdpo_drivers_interfaces
+  tf2
+  tf2_ros
+)
+
 target_link_libraries(${PROJECT_NAME}_cmd_vel_node
   sdpo_drivers_interfaces::sdpo_drivers_interfaces__rosidl_typesupport_cpp
 )
 
 install(TARGETS ${PROJECT_NAME}_cmd_vel_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(TARGETS ${PROJECT_NAME}_wh_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

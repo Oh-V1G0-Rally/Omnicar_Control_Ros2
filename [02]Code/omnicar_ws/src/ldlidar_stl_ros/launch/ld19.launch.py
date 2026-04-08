@@ -7,39 +7,33 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     robot_id = LaunchConfiguration("robot_id")
+    port_name = LaunchConfiguration("port_name")
 
     return LaunchDescription([
         DeclareLaunchArgument(
             "robot_id",
             default_value=EnvironmentVariable("ROBOT_ID", default_value="unnamed_robot"),
         ),
-        Node(
-            package="sdpo_ros_odom",
-            executable="sdpo_ros_odom_cmd_vel_node",
-            name="sdpo_ros_odom_cmd_vel",
-            namespace=robot_id,
-            parameters=[
-                PathJoinSubstitution([
-                    FindPackageShare("sdpo_ros_odom"),
-                    "config",
-                    "sdpo_ros_odom_cmd_vel.yaml",
-                ])
-            ],
+        DeclareLaunchArgument(
+            "port_name",
+            default_value="/dev/ttyUSB1",
         ),
         Node(
-            package="sdpo_ros_odom",
-            executable="sdpo_ros_odom_wh_node",
-            name="sdpo_ros_odom_wh",
+            package="ldlidar_stl_ros",
+            executable="ldlidar_stl_ros_node",
+            name="LD19",
             namespace=robot_id,
+            output="screen",
             parameters=[
                 PathJoinSubstitution([
-                    FindPackageShare("sdpo_ros_odom"),
+                    FindPackageShare("ldlidar_stl_ros"),
                     "config",
-                    "sdpo_ros_odom_wh.yaml",
+                    "sdpo_driver_laser_2d_LD19.yaml",
                 ]),
                 {
-                    "odom_frame_id": [robot_id, "/odom"],
+                    "port_name": port_name,
                     "base_frame_id": [robot_id, "/base_footprint"],
+                    "laser_frame_id": [robot_id, "/laser"],
                 },
             ],
         ),

@@ -14,32 +14,22 @@ def generate_launch_description():
             default_value=EnvironmentVariable("ROBOT_ID", default_value="unnamed_robot"),
         ),
         Node(
-            package="sdpo_ros_odom",
-            executable="sdpo_ros_odom_cmd_vel_node",
-            name="sdpo_ros_odom_cmd_vel",
+            package="sdpo_ratf_ros_localization",
+            executable="sdpo_ratf_ros_localization_node",
+            name="sdpo_ratf_ros_localization",
             namespace=robot_id,
+            output="screen",
             parameters=[
                 PathJoinSubstitution([
-                    FindPackageShare("sdpo_ros_odom"),
+                    FindPackageShare("sdpo_ratf_ros_localization"),
                     "config",
-                    "sdpo_ros_odom_cmd_vel.yaml",
-                ])
-            ],
-        ),
-        Node(
-            package="sdpo_ros_odom",
-            executable="sdpo_ros_odom_wh_node",
-            name="sdpo_ros_odom_wh",
-            namespace=robot_id,
-            parameters=[
-                PathJoinSubstitution([
-                    FindPackageShare("sdpo_ros_odom"),
-                    "config",
-                    "sdpo_ros_odom_wh.yaml",
+                    "sdpo_ratf_ros_localization.yaml",
                 ]),
                 {
+                    "map_frame_id": [robot_id, "/map"],
                     "odom_frame_id": [robot_id, "/odom"],
                     "base_frame_id": [robot_id, "/base_footprint"],
+                    "laser_frame_id": [robot_id, "/laser"],
                 },
             ],
         ),

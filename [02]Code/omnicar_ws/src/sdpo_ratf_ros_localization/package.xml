@@ -1,19 +1,23 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>sdpo_driver_omnijoy</name>
+  <name>sdpo_ratf_ros_localization</name>
   <version>0.0.0</version>
-  <description>ROS2 joystick teleoperation node aligned with the legacy sdpo_driver_omnijoy behavior.</description>
+  <description>ROS2 port of the legacy beacon-plus-odometry localization node for Omnicar.</description>
 
   <maintainer email="alessandro.vigo22@gmail.com">c2sr</maintainer>
   <license>TODO</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
-  <exec_depend>joy_linux</exec_depend>
+  <depend>std_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>visualization_msgs</depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
 

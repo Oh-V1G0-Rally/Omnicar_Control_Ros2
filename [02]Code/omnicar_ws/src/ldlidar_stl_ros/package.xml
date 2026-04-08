@@ -1,21 +1,20 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>sdpo_driver_omnijoy</name>
-  <version>0.0.0</version>
-  <description>ROS2 joystick teleoperation node aligned with the legacy sdpo_driver_omnijoy behavior.</description>
+  <name>ldlidar_stl_ros</name>
+  <version>3.0.0</version>
+  <description>ROS2 port of the LD19 lidar node used by Omnicar.</description>
 
   <maintainer email="alessandro.vigo22@gmail.com">c2sr</maintainer>
-  <license>TODO</license>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
+  <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
-  <exec_depend>joy_linux</exec_depend>
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

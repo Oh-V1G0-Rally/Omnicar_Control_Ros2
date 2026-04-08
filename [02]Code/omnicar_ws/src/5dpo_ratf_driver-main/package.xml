@@ -62,6 +62,12 @@
   <depend>serial_communication_channels</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
+  <exec_depend condition="$ROS_VERSION == 2">launch</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">launch_ros</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">ldlidar_stl_ros</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">sdpo_driver_omnijoy</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">sdpo_ros_odom</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">sdpo_ratf_ros_localization</exec_depend>
 
 
 

@@ -26,21 +26,4 @@ def generate_launch_description():
                 ])
             ],
         ),
-        Node(
-            package="sdpo_ros_odom",
-            executable="sdpo_ros_odom_wh_node",
-            name="sdpo_ros_odom_wh",
-            namespace=robot_id,
-            parameters=[
-                PathJoinSubstitution([
-                    FindPackageShare("sdpo_ros_odom"),
-                    "config",
-                    "sdpo_ros_odom_wh.yaml",
-                ]),
-                {
-                    "odom_frame_id": [robot_id, "/odom"],
-                    "base_frame_id": [robot_id, "/base_footprint"],
-                },
-            ],
-        ),
     ])

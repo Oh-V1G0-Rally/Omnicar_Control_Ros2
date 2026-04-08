@@ -1,0 +1,27 @@
+/**:
+  ros__parameters:
+    base_frame_id: base_footprint
+    odom_frame_id: odom
+    publish_tf: true
+    translation_covariance: 0.0001
+    rotation_covariance: 0.001
+    invert_odom_x: false
+    invert_odom_y: false
+    invert_odom_yaw: false
+    suppress_encoder_pure_rotation_translation: true
+    pure_rotation_min_abs_ticks: 2
+    steering_geometry: omni4
+    rob_dist_between_front_back_wh: 0.185
+    rob_dist_between_left_right_wh: 0.220
+    wh_front_left_diam: 0.06
+    wh_front_left_idx: 0
+    wh_front_left_inv: false
+    wh_front_right_diam: 0.06
+    wh_front_right_idx: 1
+    wh_front_right_inv: true
+    wh_back_left_diam: 0.06
+    wh_back_left_idx: 2
+    wh_back_left_inv: false
+    wh_back_right_diam: 0.06
+    wh_back_right_idx: 3
+    wh_back_right_inv: true
