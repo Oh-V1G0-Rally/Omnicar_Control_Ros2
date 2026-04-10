@@ -30,7 +30,7 @@ def generate_launch_description():
         DeclareLaunchArgument("use_lidar", default_value="true"),
         DeclareLaunchArgument("use_localization", default_value="true"),
         DeclareLaunchArgument("driver_port", default_value="/dev/omnicar_esp32"),
-        DeclareLaunchArgument("lidar_port", default_value="/dev/ttyUSB1"),
+        DeclareLaunchArgument("lidar_port", default_value="/dev/omnicar_lidar"),
         DeclareLaunchArgument("joy_dev", default_value="/dev/input/js0"),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(

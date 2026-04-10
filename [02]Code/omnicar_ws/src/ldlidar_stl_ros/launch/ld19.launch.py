@@ -16,7 +16,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "port_name",
-            default_value="/dev/ttyUSB1",
+            default_value="/dev/omnicar_lidar",
         ),
         Node(
             package="ldlidar_stl_ros",

@@ -48,7 +48,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "lidar_port",
-            default_value="/dev/ttyUSB1",
+            default_value="/dev/omnicar_lidar",
         ),
         DeclareLaunchArgument(
             "driver_port",

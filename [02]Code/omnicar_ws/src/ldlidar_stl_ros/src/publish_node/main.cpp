@@ -40,7 +40,7 @@ public:
   {
     pose_.base_frame_id = this->declare_parameter<std::string>("base_frame_id", "base_footprint");
     setting_.frame_id = this->declare_parameter<std::string>("laser_frame_id", "laser");
-    port_name_ = this->declare_parameter<std::string>("port_name", "/dev/ttyUSB1");
+    port_name_ = this->declare_parameter<std::string>("port_name", "/dev/omnicar_lidar");
     serial_port_baudrate_ = this->declare_parameter<int>("port_baudrate", 230400);
     topic_name_ = this->declare_parameter<std::string>("topic_name", "scan");
     pose_.x = this->declare_parameter<double>("laser_pose_x", 0.09);

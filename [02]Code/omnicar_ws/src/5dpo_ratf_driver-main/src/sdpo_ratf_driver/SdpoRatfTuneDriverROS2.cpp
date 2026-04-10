@@ -85,11 +85,11 @@ void SdpoRatfTuneDriverROS2::getParam()
 {
 
   encoder_res_    = this->declare_parameter<double>("encoder_res", 64.0);
-  gear_reduction_ = this->declare_parameter<double>("gear_reduction", 43.8);
+  gear_reduction_ = this->declare_parameter<double>("gear_reduction", 18.75);
   serial_port_name_ =
       this->declare_parameter<std::string>("serial_port_name", "/dev/omnicar_esp32");
 
-  mot_ctrl_freq_ = this->declare_parameter<int>("mot_ctrl_freq", 100);
+  mot_ctrl_freq_ = this->declare_parameter<int>("mot_ctrl_freq", 50);
   max_mot_pwm_   = this->declare_parameter<int>("max_mot_pwm"  , 1023);
 
   for (auto& m : rob_.mot)

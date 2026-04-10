@@ -17,10 +17,10 @@
         output="$(optenv ROBOT_OUTPUT screen)">
 
       <param name="encoder_res" value="64.0"/>
-      <param name="gear_reduction" value="43.8"/>
+      <param name="gear_reduction" value="18.75"/>
       <param name="serial_port_name" value="/dev/omnicar_esp32"/>
 
-      <param name="mot_ctrl_freq" value="100"/>
+      <param name="mot_ctrl_freq" value="50"/>
       <param name="max_mot_pwm"   value="1023"/>
 
     </node>
