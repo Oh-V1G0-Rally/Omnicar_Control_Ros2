@@ -1,23 +1,46 @@
 /**:
   ros__parameters:
+    # Global frame used for the corrected localization estimate.
     map_frame_id: map
+    # Local odometry frame produced by wheel odometry.
     odom_frame_id: odom
+    # Robot body frame used as the localization reference.
     base_frame_id: base_footprint
+    # LiDAR frame used to project laser points into the map.
     laser_frame_id: laser
-    beacons_diam: 0.1
+    # Physical diameter of each beacon or pillar in meters.
+    beacons_diam: 0.09
+    # Maximum distance in meters for associating a measured beacon to a map beacon.
     beacons_valid_dist: 0.2
-    beacons: [0.910, 0.552, -0.910, 0.552, 0.910, -0.552, -0.910, -0.552]
+    # Beacon center coordinates in the map frame, ordered as x1, y1, x2, y2, ...
+    #beacons: [0.910, 0.552, -0.910, 0.552, 0.910, -0.552, -0.910, -0.552]
+    #beacons: [0.9175, 0.6675, -0.9175, 0.6675, 0.9175, -0.6675, -0.9175, -0.6675]
+    beacons: [0.0, 0.6675, -0.9175, 0.6675, 0.0, -0.6675, -0.9175, -0.6675]
+    # Initial EKF x position in meters.
     ekf_pose_ini_x: 0.0
+    # Initial EKF y position in meters.
     ekf_pose_ini_y: 0.0
+    # Initial EKF heading in degrees.
     ekf_pose_ini_th: 0.0
+    # Initial EKF covariance for x position.
     ekf_cov_ini_p_x: 0.1
+    # Initial EKF covariance for y position.
     ekf_cov_ini_p_y: 0.1
+    # Initial EKF covariance for heading.
     ekf_cov_ini_p_th: 0.1
+    # Process noise covariance for forward odometry motion.
     ekf_cov_q_d: 0.1
+    # Process noise covariance for lateral odometry motion.
     ekf_cov_q_dn: 0.1
+    # Process noise covariance for heading evolution.
     ekf_cov_q_dth: 0.05
+    # Measurement noise covariance for beacon distance observations.
     ekf_cov_r_dist: 0.0001
+    # Measurement noise covariance for beacon bearing observations.
     ekf_cov_r_ang: 0.001
+    # Initial EKF operating mode.
     ekf_mode_ini: Fusion
+    # Publish the corrected pose topic estimated by the localization node.
     publish_pose: true
+    # Enable LiDAR beacon updates inside the localization filter.
     use_lidar_for_localization: true

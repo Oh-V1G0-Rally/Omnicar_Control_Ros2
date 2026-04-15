@@ -37,6 +37,8 @@ private:
   int pure_rotation_min_abs_ticks_ = 2;
   double translation_covariance_ = 0.0001;
   double rotation_covariance_ = 0.001;
+  bool debug_print_odom_ = false;
+  int debug_print_period_ms_ = 500;
 };
 
 }  // namespace sdpo_ros_odom

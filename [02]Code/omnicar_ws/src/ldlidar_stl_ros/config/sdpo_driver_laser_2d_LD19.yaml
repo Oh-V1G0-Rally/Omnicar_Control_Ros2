@@ -1,21 +1,40 @@
 /**:
   ros__parameters:
+    # LiDAR product name used by the driver.
     product_name: LDLiDAR_LD19
+    # Topic name for the LaserScan output.
     topic_name: scan
+    # LiDAR model identifier expected by the driver.
     model: ld19
+    # Serial device path used to connect to the LiDAR.
     port_name: /dev/omnicar_lidar
+    # Serial baud rate used by the LiDAR.
     port_baudrate: 230400
+    # Parent robot frame for the published laser transform.
     base_frame_id: base_footprint
+    # Child frame name assigned to the laser sensor.
     laser_frame_id: laser
+    # LiDAR x offset from the robot base frame in meters.
     laser_pose_x: 0.09
+    # LiDAR y offset from the robot base frame in meters.
     laser_pose_y: 0.0
+    # LiDAR z offset from the robot base frame in meters.
     laser_pose_z: 0.0
+    # LiDAR yaw offset from the robot base frame in degrees.
     laser_pose_yaw: -90.0
+    # LiDAR pitch offset from the robot base frame in degrees.
     laser_pose_pitch: 0.0
+    # LiDAR roll offset from the robot base frame in degrees.
     laser_pose_roll: 0.0
+    # Minimum valid measured distance in meters.
     dist_min: 0.02
+    # Maximum valid measured distance in meters.
     dist_max: 12.0
+    # Set the scan rotation direction expected by the driver.
     laser_scan_dir: true
+    # Enable angular cropping of the scan if needed.
     enable_angle_crop_func: false
+    # Minimum crop angle in degrees when angular cropping is enabled.
     angle_crop_min: 135.0
+    # Maximum crop angle in degrees when angular cropping is enabled.
     angle_crop_max: 225.0

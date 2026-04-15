@@ -14,6 +14,7 @@ def generate_launch_description():
     use_cmd_vel_bridge = LaunchConfiguration("use_cmd_vel_bridge")
     use_lidar = LaunchConfiguration("use_lidar")
     use_localization = LaunchConfiguration("use_localization")
+    use_waypoint_controller = LaunchConfiguration("use_waypoint_controller")
     driver_port = LaunchConfiguration("driver_port")
     lidar_port = LaunchConfiguration("lidar_port")
     joy_dev = LaunchConfiguration("joy_dev")
@@ -29,6 +30,7 @@ def generate_launch_description():
         DeclareLaunchArgument("use_cmd_vel_bridge", default_value="true"),
         DeclareLaunchArgument("use_lidar", default_value="true"),
         DeclareLaunchArgument("use_localization", default_value="true"),
+        DeclareLaunchArgument("use_waypoint_controller", default_value="false"),
         DeclareLaunchArgument("driver_port", default_value="/dev/omnicar_esp32"),
         DeclareLaunchArgument("lidar_port", default_value="/dev/omnicar_lidar"),
         DeclareLaunchArgument("joy_dev", default_value="/dev/input/js0"),
@@ -106,5 +108,16 @@ def generate_launch_description():
             ),
             launch_arguments={"robot_id": robot_id}.items(),
             condition=IfCondition(use_localization),
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([
+                    FindPackageShare("sdpo_motion_control"),
+                    "launch",
+                    "go_to_point_controller.launch.py",
+                ])
+            ),
+            launch_arguments={"robot_id": robot_id}.items(),
+            condition=IfCondition(use_waypoint_controller),
         ),
     ])

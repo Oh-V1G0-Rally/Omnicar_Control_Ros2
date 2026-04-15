@@ -5,6 +5,8 @@
     publish_tf: true
     translation_covariance: 0.0001
     rotation_covariance: 0.001
+    debug_print_odom: false
+    debug_print_period_ms: 500
     invert_odom_x: false
     invert_odom_y: false
     invert_odom_yaw: false

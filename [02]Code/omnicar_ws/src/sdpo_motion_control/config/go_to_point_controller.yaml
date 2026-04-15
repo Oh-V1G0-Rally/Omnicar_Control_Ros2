@@ -1,0 +1,74 @@
+/**:
+  ros__parameters:
+    # Select which pose estimate the controller uses: raw odometry or corrected pose.
+    pose_source: pose
+    # Reference frame expected for both the current pose and the incoming goals.
+    control_frame_id: map
+    # Topic name for odometry input when pose_source is set to odom.
+    odom_topic: odom
+    # Topic name for corrected pose input when pose_source is set to pose.
+    pose_topic: pose
+    # Topic receiving full PoseStamped goals.
+    goal_topic: goal_pose
+    # Topic receiving simplified x, y, yaw goals as a Vector3.
+    simple_goal_topic: goal_xyyaw
+    # Topic where velocity commands are published.
+    cmd_vel_topic: cmd_vel
+    # Topic publishing whether the goal has been reached.
+    goal_reached_topic: goal_reached
+    # Topic publishing controller tracking errors for debugging.
+    error_topic: control_error
+    # Control loop frequency in Hz.
+    control_rate_hz: 50.0
+    # Enable publication of debug topics such as the tracking error.
+    publish_debug_topics: true
+    debug_topic: go_to_point_debug
+    debug_publish_rate_hz: 20.0
+    # Publish a zero Twist when the controller is inactive or waiting for data.
+    publish_zero_when_inactive: true
+    # Automatically arm the controller with an initial goal at startup.
+    use_initial_goal: false
+    # Initial goal x coordinate used only when use_initial_goal is true.
+    initial_goal_x: 0.0
+    # Initial goal y coordinate used only when use_initial_goal is true.
+    initial_goal_y: 0.0
+    # Initial goal yaw angle in radians used only when use_initial_goal is true.
+    initial_goal_yaw: 0.0
+    # Reference frame of the initial goal.
+    initial_goal_frame_id: map
+    # Proportional gain for body-frame x position error. (1.2)
+    kp_x: 0.8
+    # Integral gain for body-frame x position error.
+    ki_x: 0.03
+    # Derivative gain for body-frame x position error.
+    kd_x: 0.0
+    # Proportional gain for body-frame y position error.
+    kp_y: 0.9
+    # Integral gain for body-frame y position error.
+    ki_y: 0.06
+    # Derivative gain for body-frame y position error.
+    kd_y: 0.0
+    # Proportional gain for heading error.
+    kp_yaw: 0.5
+    # Integral gain for heading error.
+    ki_yaw: 0.0
+    # Derivative gain for heading error.
+    kd_yaw: 0.0
+    # Maximum commanded linear velocity along the robot x axis in m/s.
+    max_linear_x: 0.12
+    # Maximum commanded linear velocity along the robot y axis in m/s.
+    max_linear_y: 0.12
+    # Maximum commanded angular velocity around the robot z axis in rad/s.
+    max_angular_z: 0.35
+    # Absolute clamp applied to the x-axis integral term.
+    max_integral_x: 0.15
+    # Absolute clamp applied to the y-axis integral term.
+    max_integral_y: 0.15
+    # Absolute clamp applied to the yaw integral term.
+    max_integral_yaw: 0.2
+    # Position tolerance in meters used to declare goal convergence.
+    goal_tolerance_xy: 0.02
+    # Heading tolerance in radians used to declare goal convergence.
+    goal_tolerance_yaw: 0.03
+    # Publish a zero command as soon as the goal is reached.
+    stop_at_goal: true

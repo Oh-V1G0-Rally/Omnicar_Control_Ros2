@@ -35,6 +35,8 @@ void OdomWhROS2::readParameters()
     this->declare_parameter<int>("pure_rotation_min_abs_ticks", 2);
   translation_covariance_ = this->declare_parameter<double>("translation_covariance", 0.0001);
   rotation_covariance_ = this->declare_parameter<double>("rotation_covariance", 0.001);
+  debug_print_odom_ = this->declare_parameter<bool>("debug_print_odom", false);
+  debug_print_period_ms_ = this->declare_parameter<int>("debug_print_period_ms", 500);
 
   if (steering_geometry != kOdomWhOmni4Str) {
     throw std::runtime_error("Only omni4 steering_geometry is currently supported in ROS2 odom");
@@ -136,6 +138,24 @@ void OdomWhROS2::subMotEnc(const sdpo_drivers_interfaces::msg::MotEncArray::Shar
     odom_msg.pose.covariance[28] = 1000.0;
     odom_msg.pose.covariance[35] = rotation_covariance_;
     pub_odom_->publish(odom_msg);
+
+    if (debug_print_odom_) {
+      // RCLCPP_INFO_THROTTLE(
+      //   this->get_logger(), *this->get_clock(), debug_print_period_ms_,
+      //   "ODOM full | pos=(%.4f, %.4f, %.4f) quat=(%.4f, %.4f, %.4f, %.4f) "
+      //   "vel=(%.4f, %.4f, %.4f) cov=[%.4f %.4f %.4f %.4f %.4f %.4f]",
+      //   odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y, odom_msg.pose.pose.position.z,
+      //   odom_msg.pose.pose.orientation.x, odom_msg.pose.pose.orientation.y,
+      //   odom_msg.pose.pose.orientation.z, odom_msg.pose.pose.orientation.w,
+      //   odom_msg.twist.twist.linear.x, odom_msg.twist.twist.linear.y, odom_msg.twist.twist.angular.z,
+      //   odom_msg.pose.covariance[0], odom_msg.pose.covariance[7], odom_msg.pose.covariance[14],
+      //   odom_msg.pose.covariance[21], odom_msg.pose.covariance[28], odom_msg.pose.covariance[35]);
+      RCLCPP_INFO_THROTTLE(
+        this->get_logger(), *this->get_clock(), debug_print_period_ms_,
+        "ODOM dbg | x=%.4f m y=%.4f m yaw=%.4f rad | cov: x=%.4f y=%.4f yaw=%.4f",
+        odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y, pose_yaw,
+        odom_msg.pose.covariance[0], odom_msg.pose.covariance[7], odom_msg.pose.covariance[35]);
+    }
   } catch (const std::exception & e) {
     RCLCPP_ERROR(this->get_logger(), "Failed to process motors_enc message: %s", e.what());
   }
