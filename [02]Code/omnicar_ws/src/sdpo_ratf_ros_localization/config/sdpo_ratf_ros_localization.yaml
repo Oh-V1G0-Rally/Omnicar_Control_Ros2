@@ -14,8 +14,8 @@
     beacons_valid_dist: 0.2
     # Beacon center coordinates in the map frame, ordered as x1, y1, x2, y2, ...
     #beacons: [0.910, 0.552, -0.910, 0.552, 0.910, -0.552, -0.910, -0.552]
-    #beacons: [0.9175, 0.6675, -0.9175, 0.6675, 0.9175, -0.6675, -0.9175, -0.6675]
-    beacons: [0.0, 0.6675, -0.9175, 0.6675, 0.0, -0.6675, -0.9175, -0.6675]
+    beacons: [0.9175, 0.6675, -0.9175, 0.6675, 0.9175, -0.6675, -0.9175, -0.6675]
+    #beacons: [0.0, 0.6675, -0.9175, 0.6675, 0.0, -0.6675, -0.9175, -0.6675]
     # Initial EKF x position in meters.
     ekf_pose_ini_x: 0.0
     # Initial EKF y position in meters.

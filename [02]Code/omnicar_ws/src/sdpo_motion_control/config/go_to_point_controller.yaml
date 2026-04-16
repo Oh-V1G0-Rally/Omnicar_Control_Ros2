@@ -67,8 +67,8 @@
     # Absolute clamp applied to the yaw integral term.
     max_integral_yaw: 0.2
     # Position tolerance in meters used to declare goal convergence.
-    goal_tolerance_xy: 0.02
-    # Heading tolerance in radians used to declare goal convergence.
-    goal_tolerance_yaw: 0.03
+    goal_tolerance_xy: 0.01
+    # Heading tolerance in radians used to declare goal convergence. 0,02 rad = 1.14 grad
+    goal_tolerance_yaw: 0.02
     # Publish a zero command as soon as the goal is reached.
     stop_at_goal: true

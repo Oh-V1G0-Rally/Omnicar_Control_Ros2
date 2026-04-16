@@ -224,9 +224,10 @@ void SdpoRatfROSLocalizationROS::pubMapTf(const std_msgs::msg::Header & msg_head
 
   const double ekf_yaw = ekf_.XR(2);
   const double base_to_odom_yaw = quaternionToYaw(tf_base_to_odom.transform.rotation);
+  const double map_to_odom_yaw = normAngRad(ekf_yaw - base_to_odom_yaw);
 
-  const double cos_yaw = std::cos(ekf_yaw);
-  const double sin_yaw = std::sin(ekf_yaw);
+  const double cos_yaw = std::cos(map_to_odom_yaw);
+  const double sin_yaw = std::sin(map_to_odom_yaw);
   const double base_odom_x = tf_base_to_odom.transform.translation.x;
   const double base_odom_y = tf_base_to_odom.transform.translation.y;
 
@@ -239,7 +240,7 @@ void SdpoRatfROSLocalizationROS::pubMapTf(const std_msgs::msg::Header & msg_head
   tf_odom_to_map.transform.translation.z = 0.0;
 
   tf2::Quaternion q;
-  q.setRPY(0.0, 0.0, normAngRad(ekf_yaw - base_to_odom_yaw));
+  q.setRPY(0.0, 0.0, map_to_odom_yaw);
   tf_odom_to_map.transform.rotation.x = q.x();
   tf_odom_to_map.transform.rotation.y = q.y();
   tf_odom_to_map.transform.rotation.z = q.z();
