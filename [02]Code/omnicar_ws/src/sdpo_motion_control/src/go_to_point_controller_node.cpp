@@ -8,9 +8,9 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sdpo_motion_control/msg/go_to_point_debug.hpp>
-#include <sdpo_motion_control/msg/motion_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2/utils.h>
@@ -24,8 +24,10 @@ public:
   GoToPointControllerNode()
   : Node("go_to_point_controller")
   {
+    pose_source_ = declare_parameter<std::string>("pose_source", "odom");
     control_frame_id_ = declare_parameter<std::string>("control_frame_id", "odom");
-    state_topic_ = declare_parameter<std::string>("state_topic", "motion_state");
+    odom_topic_ = declare_parameter<std::string>("odom_topic", "odom");
+    pose_topic_ = declare_parameter<std::string>("pose_topic", "pose");
     goal_topic_ = declare_parameter<std::string>("goal_topic", "goal_pose");
     simple_goal_topic_ = declare_parameter<std::string>("simple_goal_topic", "goal_xyyaw");
     cmd_vel_topic_ = declare_parameter<std::string>("cmd_vel_topic", "cmd_vel");
@@ -79,9 +81,18 @@ public:
     sub_simple_goal_ = create_subscription<geometry_msgs::msg::Vector3>(
       simple_goal_topic_, 10,
       std::bind(&GoToPointControllerNode::onSimpleGoal, this, std::placeholders::_1));
-    sub_state_ = create_subscription<sdpo_motion_control::msg::MotionState>(
-      state_topic_, 10,
-      std::bind(&GoToPointControllerNode::onState, this, std::placeholders::_1));
+
+    if (pose_source_ == "odom") {
+      sub_odom_ = create_subscription<nav_msgs::msg::Odometry>(
+        odom_topic_, 10,
+        std::bind(&GoToPointControllerNode::onOdom, this, std::placeholders::_1));
+    } else if (pose_source_ == "pose") {
+      sub_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
+        pose_topic_, 10,
+        std::bind(&GoToPointControllerNode::onPose, this, std::placeholders::_1));
+    } else {
+      throw std::runtime_error("pose_source must be either 'odom' or 'pose'");
+    }
 
     if (use_initial_goal_) {
       goal_.header.frame_id = initial_goal_frame_id_;
@@ -109,18 +120,22 @@ private:
     resetControllerState();
   }
 
-  void onState(const sdpo_motion_control::msg::MotionState::SharedPtr msg)
+  void onOdom(const nav_msgs::msg::Odometry::SharedPtr msg)
   {
     current_frame_id_ = msg->header.frame_id;
-    current_state_source_type_ = msg->source_type;
-    current_x_ = msg->x;
-    current_y_ = msg->y;
-    current_yaw_ = msg->yaw;
-    current_vx_ = msg->vx;
-    current_vy_ = msg->vy;
-    current_w_ = msg->w;
-    current_state_has_velocity_ = msg->has_velocity;
-    state_received_ = true;
+    current_x_ = msg->pose.pose.position.x;
+    current_y_ = msg->pose.pose.position.y;
+    current_yaw_ = tf2::getYaw(msg->pose.pose.orientation);
+    pose_received_ = true;
+  }
+
+  void onPose(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+  {
+    current_frame_id_ = msg->header.frame_id;
+    current_x_ = msg->pose.position.x;
+    current_y_ = msg->pose.position.y;
+    current_yaw_ = tf2::getYaw(msg->pose.orientation);
+    pose_received_ = true;
   }
 
   void onSimpleGoal(const geometry_msgs::msg::Vector3::SharedPtr msg)
@@ -146,7 +161,7 @@ private:
       dt = 1e-3;
     }
 
-    if (!state_received_ || !goal_active_) {
+    if (!pose_received_ || !goal_active_) {
       if (publish_zero_when_inactive_) {
         publishZero();
       }
@@ -161,11 +176,11 @@ private:
       current_frame_id_ != expected_frame)
     {
       const std::string stop_reason =
-        "current_state_frame_mismatch: current_frame_id='" + current_frame_id_ +
+        "current_pose_frame_mismatch: current_frame_id='" + current_frame_id_ +
         "', expected='" + expected_frame + "'";
       RCLCPP_ERROR_THROTTLE(
         get_logger(), *get_clock(), 2000,
-        "Stopping controller: current state frame '%s' does not match control frame '%s'.",
+        "Stopping controller: current pose frame '%s' does not match control frame '%s'.",
         current_frame_id_.c_str(), expected_frame.c_str());
       if (publish_zero_when_inactive_) {
         publishZero();
@@ -272,7 +287,7 @@ private:
     msg.header.frame_id = control_frame_id_;
     msg.active = goal_active_;
     msg.goal_reached = goal_reached;
-    msg.state_source_type = current_state_source_type_;
+    msg.pose_source = pose_source_;
     msg.control_frame_id = control_frame_id_;
     msg.current_frame_id = current_frame_id_;
     msg.goal_frame_id = goal_.header.frame_id;
@@ -280,10 +295,6 @@ private:
     msg.current_x = current_x_;
     msg.current_y = current_y_;
     msg.current_yaw = current_yaw_;
-    msg.current_vx = current_vx_;
-    msg.current_vy = current_vy_;
-    msg.current_w = current_w_;
-    msg.state_has_velocity = current_state_has_velocity_;
     msg.target_x = goal_.pose.position.x;
     msg.target_y = goal_.pose.position.y;
     msg.target_yaw = goal_yaw;
@@ -372,10 +383,11 @@ private:
     return std::max(min_value, std::min(value, max_value));
   }
 
+  std::string pose_source_;
   std::string control_frame_id_;
   std::string current_frame_id_;
-  std::string current_state_source_type_;
-  std::string state_topic_;
+  std::string odom_topic_;
+  std::string pose_topic_;
   std::string goal_topic_;
   std::string simple_goal_topic_;
   std::string cmd_vel_topic_;
@@ -388,9 +400,8 @@ private:
   bool publish_zero_when_inactive_ = true;
   bool stop_at_goal_ = true;
   bool use_initial_goal_ = false;
-  bool state_received_ = false;
+  bool pose_received_ = false;
   bool goal_active_ = false;
-  bool current_state_has_velocity_ = false;
 
   double initial_goal_x_ = 0.0;
   double initial_goal_y_ = 0.0;
@@ -419,9 +430,6 @@ private:
   double current_x_ = 0.0;
   double current_y_ = 0.0;
   double current_yaw_ = 0.0;
-  double current_vx_ = 0.0;
-  double current_vy_ = 0.0;
-  double current_w_ = 0.0;
   double integral_x_ = 0.0;
   double integral_y_ = 0.0;
   double integral_yaw_ = 0.0;
@@ -438,7 +446,8 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_error_;
   rclcpp::Publisher<sdpo_motion_control::msg::GoToPointDebug>::SharedPtr pub_debug_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_goal_reached_;
-  rclcpp::Subscription<sdpo_motion_control::msg::MotionState>::SharedPtr sub_state_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose_;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_goal_;
   rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr sub_simple_goal_;
 };

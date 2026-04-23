@@ -42,7 +42,6 @@ def _launch_setup(context, *args, **kwargs):
     open_rqt_plot = _as_bool(LaunchConfiguration("open_rqt_plot_on_shutdown").perform(context))
 
     topics_to_record = [
-        _ns_topic(robot_id, "motion_state"),
         _ns_topic(robot_id, "go_to_point_debug"),
         _ns_topic(robot_id, "control_error"),
         _ns_topic(robot_id, "cmd_vel"),
@@ -68,24 +67,6 @@ def _launch_setup(context, *args, **kwargs):
     actions = [
         Node(
             package="sdpo_motion_control",
-            executable="motion_state_adapter_node",
-            name="motion_state_adapter",
-            namespace=robot_id,
-            output="screen",
-            parameters=[
-                PathJoinSubstitution([
-                    FindPackageShare("sdpo_motion_control"),
-                    "config",
-                    "motion_state_adapter.yaml",
-                ]),
-                {
-                    "input_type": "odom",
-                    "default_state_frame_id": control_frame_id,
-                },
-            ],
-        ),
-        Node(
-            package="sdpo_motion_control",
             executable="go_to_point_controller_node",
             name="go_to_point_controller",
             namespace=robot_id,
@@ -97,6 +78,7 @@ def _launch_setup(context, *args, **kwargs):
                     "go_to_point_controller.yaml",
                 ]),
                 {
+                    "pose_source": "odom",
                     "control_frame_id": control_frame_id,
                     "initial_goal_frame_id": initial_goal_frame_id,
                 },

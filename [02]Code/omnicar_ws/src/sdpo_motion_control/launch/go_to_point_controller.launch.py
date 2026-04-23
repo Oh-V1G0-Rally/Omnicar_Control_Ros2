@@ -7,10 +7,9 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     robot_id = LaunchConfiguration("robot_id")
-    state_input_type = LaunchConfiguration("state_input_type")
+    pose_source = LaunchConfiguration("pose_source")
     control_frame_id = LaunchConfiguration("control_frame_id")
     initial_goal_frame_id = LaunchConfiguration("initial_goal_frame_id")
-    state_topic = LaunchConfiguration("state_topic")
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -18,7 +17,7 @@ def generate_launch_description():
             default_value=EnvironmentVariable("ROBOT_ID", default_value="unnamed_robot"),
         ),
         DeclareLaunchArgument(
-            "state_input_type",
+            "pose_source",
             default_value="pose",
         ),
         DeclareLaunchArgument(
@@ -28,29 +27,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "initial_goal_frame_id",
             default_value=[robot_id, "/map"],
-        ),
-        DeclareLaunchArgument(
-            "state_topic",
-            default_value="motion_state",
-        ),
-        Node(
-            package="sdpo_motion_control",
-            executable="motion_state_adapter_node",
-            name="motion_state_adapter",
-            namespace=robot_id,
-            output="screen",
-            parameters=[
-                PathJoinSubstitution([
-                    FindPackageShare("sdpo_motion_control"),
-                    "config",
-                    "motion_state_adapter.yaml",
-                ]),
-                {
-                    "input_type": state_input_type,
-                    "state_topic": state_topic,
-                    "default_state_frame_id": control_frame_id,
-                },
-            ],
         ),
         Node(
             package="sdpo_motion_control",
@@ -65,7 +41,7 @@ def generate_launch_description():
                     "go_to_point_controller.yaml",
                 ]),
                 {
-                    "state_topic": state_topic,
+                    "pose_source": pose_source,
                     "control_frame_id": control_frame_id,
                     "initial_goal_frame_id": initial_goal_frame_id,
                 },

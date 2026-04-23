@@ -3,7 +3,7 @@ std_msgs/Header header
 bool active
 bool goal_reached
 
-string state_source_type
+string pose_source
 string control_frame_id
 string current_frame_id
 string goal_frame_id
@@ -12,10 +12,6 @@ string stop_reason
 float64 current_x
 float64 current_y
 float64 current_yaw
-float64 current_vx
-float64 current_vy
-float64 current_w
-bool state_has_velocity
 
 float64 target_x
 float64 target_y
