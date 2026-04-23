@@ -75,7 +75,7 @@ def _launch_setup(context, *args, **kwargs):
                 PathJoinSubstitution([
                     FindPackageShare("sdpo_motion_control"),
                     "config",
-                    "go_to_point_controller.yaml",
+                    "go_to_point_controller_odom_debug.yaml",
                 ]),
                 {
                     "pose_source": "odom",

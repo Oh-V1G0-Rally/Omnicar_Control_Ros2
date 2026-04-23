@@ -122,19 +122,28 @@ private:
 
   void onOdom(const nav_msgs::msg::Odometry::SharedPtr msg)
   {
-    current_frame_id_ = msg->header.frame_id;
-    current_x_ = msg->pose.pose.position.x;
-    current_y_ = msg->pose.pose.position.y;
-    current_yaw_ = tf2::getYaw(msg->pose.pose.orientation);
-    pose_received_ = true;
+    updateCurrentPose(
+      msg->header.frame_id,
+      msg->pose.pose.position.x,
+      msg->pose.pose.position.y,
+      tf2::getYaw(msg->pose.pose.orientation));
   }
 
   void onPose(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
   {
-    current_frame_id_ = msg->header.frame_id;
-    current_x_ = msg->pose.position.x;
-    current_y_ = msg->pose.position.y;
-    current_yaw_ = tf2::getYaw(msg->pose.orientation);
+    updateCurrentPose(
+      msg->header.frame_id,
+      msg->pose.position.x,
+      msg->pose.position.y,
+      tf2::getYaw(msg->pose.orientation));
+  }
+
+  void updateCurrentPose(const std::string & frame_id, double x, double y, double yaw)
+  {
+    current_frame_id_ = frame_id;
+    current_x_ = x;
+    current_y_ = y;
+    current_yaw_ = yaw;
     pose_received_ = true;
   }
 

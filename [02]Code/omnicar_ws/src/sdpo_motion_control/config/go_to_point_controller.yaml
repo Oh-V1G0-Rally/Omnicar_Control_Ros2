@@ -1,13 +1,9 @@
 /**:
   ros__parameters:
-    # Select which pose estimate the controller uses: raw odometry or corrected pose.
-    pose_source: pose
-    # Reference frame expected for both the current pose and the incoming goals.
+    # Reference frame expected for both the current state estimate and the incoming goals.
     control_frame_id: map
-    # Topic name for odometry input when pose_source is set to odom.
-    odom_topic: odom
-    # Topic name for corrected pose input when pose_source is set to pose.
-    pose_topic: pose
+    # Unified motion-state topic consumed by controllers in this package.
+    state_topic: motion_state
     # Topic receiving full PoseStamped goals.
     goal_topic: goal_pose
     # Topic receiving simplified x, y, yaw goals as a Vector3.

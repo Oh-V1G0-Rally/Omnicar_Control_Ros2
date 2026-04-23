@@ -1,0 +1,57 @@
+/**:
+  ros__parameters:
+    # Reference frame expected for the current pose and the path coordinates.
+    control_frame_id: map
+    # Unified motion-state topic consumed by this controller.
+    pose_topic: pose
+    # Topic where velocity commands are published.
+    cmd_vel_topic: cmd_vel
+    # Topic publishing controller tracking errors for debugging.
+    error_topic: path_follower_error
+    # Topic publishing structured path-following debug data.
+    debug_topic: path_follower_debug
+
+    # CSV path with x,y[,yaw] columns. Header rows are accepted.
+    path_file: "/home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rectangle.csv"
+    path_is_closed: true
+
+    control_rate_hz: 50.0
+    publish_debug_topics: true
+    debug_publish_rate_hz: 20.0
+    publish_zero_when_inactive: true
+
+    # First go to the closest point on the path, then start advancing gamma.
+    startup_mode: nearest_then_follow
+    entry_tolerance_xy: 0.03
+    stop_at_end: false
+
+    # Reference-point motion along the path, in meters and seconds.
+    desired_speed: 0.35
+    k_gamma: 0.5
+    min_gamma_dot: 0.0
+    max_gamma_dot: 0.38
+
+    # Heading modes: fixed, tangent, path, beacon.
+    heading_mode: fixed
+    fixed_heading: 0.0
+    lookahead_distance: 0.10
+    beacon_x: 0.0
+    beacon_y: 0.0
+
+    # PID gains reused from go_to_point_controller.yaml.
+    kp_x: 0.8
+    ki_x: 0.03
+    kd_x: 0.0
+    kp_y: 0.9
+    ki_y: 0.06
+    kd_y: 0.0
+    kp_yaw: 0.5
+    ki_yaw: 0.0
+    kd_yaw: 0.0
+
+    max_linear_x: 0.40
+    max_linear_y: 0.40
+    max_angular_z: 0.35
+    max_integral_x: 0.15
+    max_integral_y: 0.15
+    max_integral_yaw: 0.2

@@ -1,0 +1,40 @@
+/**:
+  ros__parameters:
+    # Debug configuration using raw wheel odometry instead of corrected EKF pose.
+    pose_source: odom
+    control_frame_id: odom
+    odom_topic: odom
+    pose_topic: pose
+    goal_topic: goal_pose
+    simple_goal_topic: goal_xyyaw
+    cmd_vel_topic: cmd_vel
+    goal_reached_topic: goal_reached
+    error_topic: control_error
+    control_rate_hz: 50.0
+    publish_debug_topics: true
+    debug_topic: go_to_point_debug
+    debug_publish_rate_hz: 20.0
+    publish_zero_when_inactive: true
+    use_initial_goal: false
+    initial_goal_x: 0.0
+    initial_goal_y: 0.0
+    initial_goal_yaw: 0.0
+    initial_goal_frame_id: odom
+    kp_x: 0.8
+    ki_x: 0.03
+    kd_x: 0.0
+    kp_y: 0.9
+    ki_y: 0.06
+    kd_y: 0.0
+    kp_yaw: 0.5
+    ki_yaw: 0.0
+    kd_yaw: 0.0
+    max_linear_x: 0.12
+    max_linear_y: 0.12
+    max_angular_z: 0.35
+    max_integral_x: 0.15
+    max_integral_y: 0.15
+    max_integral_yaw: 0.2
+    goal_tolerance_xy: 0.01
+    goal_tolerance_yaw: 0.02
+    stop_at_goal: true

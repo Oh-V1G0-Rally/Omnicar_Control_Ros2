@@ -20,11 +20,16 @@ find_package(tf2_geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GoToPointDebug.msg"
+  "msg/PathFollowerDebug.msg"
   DEPENDENCIES std_msgs
 )
 
 add_executable(go_to_point_controller_node
   src/go_to_point_controller_node.cpp
+)
+
+add_executable(path_follower_node
+  src/path_follower_node.cpp
 )
 
 ament_target_dependencies(go_to_point_controller_node
@@ -36,11 +41,22 @@ ament_target_dependencies(go_to_point_controller_node
   tf2_geometry_msgs
 )
 
+ament_target_dependencies(path_follower_node
+  rclcpp
+  geometry_msgs
+  std_msgs
+  tf2
+  tf2_geometry_msgs
+)
+
 rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(go_to_point_controller_node "${cpp_typesupport_target}")
+target_link_libraries(path_follower_node "${cpp_typesupport_target}")
 
-install(TARGETS go_to_point_controller_node
+install(TARGETS
+  go_to_point_controller_node
+  path_follower_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
