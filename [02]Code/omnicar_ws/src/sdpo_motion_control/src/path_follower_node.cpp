@@ -30,6 +30,7 @@ public:
     cmd_vel_topic_ = declare_parameter<std::string>("cmd_vel_topic", "cmd_vel");
     error_topic_ = declare_parameter<std::string>("error_topic", "path_follower_error");
     debug_topic_ = declare_parameter<std::string>("debug_topic", "path_follower_debug");
+    controller_mode_ = declare_parameter<std::string>("controller_mode", "moving_reference_p");
     path_file_ = declare_parameter<std::string>("path_file", "");
     path_is_closed_ = declare_parameter<bool>("path_is_closed", true);
     publish_debug_topics_ = declare_parameter<bool>("publish_debug_topics", true);
@@ -45,16 +46,19 @@ public:
     k_gamma_ = declare_parameter<double>("k_gamma", 0.5);
     min_gamma_dot_ = declare_parameter<double>("min_gamma_dot", 0.0);
     max_gamma_dot_ = declare_parameter<double>("max_gamma_dot", 0.12);
+    linear_k_along_ = declare_parameter<double>("linear_k_along", 0.0);
+    linear_k_lateral_ = declare_parameter<double>("linear_k_lateral", 0.8);
+    linear_projection_lookahead_ = declare_parameter<double>("linear_projection_lookahead", 0.0);
     fixed_heading_ = declare_parameter<double>("fixed_heading", 0.0);
     lookahead_distance_ = declare_parameter<double>("lookahead_distance", 0.10);
     beacon_x_ = declare_parameter<double>("beacon_x", 0.0);
     beacon_y_ = declare_parameter<double>("beacon_y", 0.0);
 
     kp_x_ = declare_parameter<double>("kp_x", 0.8);
-    ki_x_ = declare_parameter<double>("ki_x", 0.03);
+    ki_x_ = declare_parameter<double>("ki_x", 0.0);
     kd_x_ = declare_parameter<double>("kd_x", 0.0);
     kp_y_ = declare_parameter<double>("kp_y", 0.9);
-    ki_y_ = declare_parameter<double>("ki_y", 0.06);
+    ki_y_ = declare_parameter<double>("ki_y", 0.0);
     kd_y_ = declare_parameter<double>("kd_y", 0.0);
     kp_yaw_ = declare_parameter<double>("kp_yaw", 0.5);
     ki_yaw_ = declare_parameter<double>("ki_yaw", 0.0);
@@ -81,6 +85,10 @@ public:
 
     if (startup_mode_ != "nearest_then_follow" && startup_mode_ != "follow_immediately") {
       throw std::runtime_error("startup_mode must be 'nearest_then_follow' or 'follow_immediately'");
+    }
+
+    if (controller_mode_ != "moving_reference_p" && controller_mode_ != "linear_segment") {
+      throw std::runtime_error("controller_mode must be 'moving_reference_p' or 'linear_segment'");
     }
 
     if (
@@ -116,6 +124,25 @@ private:
     bool has_yaw = false;
     double tangent_x = 1.0;
     double tangent_y = 0.0;
+  };
+
+  struct SegmentProjection
+  {
+    double gamma = 0.0;
+    double distance_sq = std::numeric_limits<double>::infinity();
+  };
+
+  struct ControlCommand
+  {
+    PathSample target;
+    double target_yaw = 0.0;
+    double gamma_dot = 0.0;
+    double feedforward_body_x = 0.0;
+    double feedforward_body_y = 0.0;
+    double position_feedback_body_x = 0.0;
+    double position_feedback_body_y = 0.0;
+    std::string state_name;
+    std::string stop_reason;
   };
 
   enum class State
@@ -212,29 +239,44 @@ private:
       return;
     }
 
-    publishControl(stamp, dt, target, target_yaw, 0.0, 0.0, 0.0, "approach_path", "");
+    ControlCommand command;
+    command.target = target;
+    command.target_yaw = target_yaw;
+    command.state_name = "approach_path";
+    computePositionFeedback(
+      target, dt, command.position_feedback_body_x, command.position_feedback_body_y);
+    publishCommand(stamp, dt, command);
   }
 
   void runFollow(const rclcpp::Time & stamp, double dt)
   {
-    const PathSample target = sampleAt(gamma_);
-    const double target_yaw = desiredYaw(gamma_, target);
+    ControlCommand command = controller_mode_ == "linear_segment" ?
+      computeLinearSegmentCommand() :
+      computeMovingReferenceCommand(dt);
+    publishCommand(stamp, dt, command);
+  }
+
+  ControlCommand computeMovingReferenceCommand(double dt)
+  {
+    ControlCommand command;
+    command.target = sampleAt(gamma_);
+    command.target_yaw = desiredYaw(gamma_, command.target);
+    command.state_name = "follow_path";
+
     const double error_along =
-      (current_x_ - target.x) * target.tangent_x + (current_y_ - target.y) * target.tangent_y;
-    const double gamma_dot = clamp(
+      (current_x_ - command.target.x) * command.target.tangent_x +
+      (current_y_ - command.target.y) * command.target.tangent_y;
+    command.gamma_dot = clamp(
       desired_speed_ + k_gamma_ * error_along, min_gamma_dot_, max_gamma_dot_);
 
-    const double ff_world_x = target.tangent_x * gamma_dot;
-    const double ff_world_y = target.tangent_y * gamma_dot;
-    const double cos_yaw = std::cos(current_yaw_);
-    const double sin_yaw = std::sin(current_yaw_);
-    const double ff_body_x = cos_yaw * ff_world_x + sin_yaw * ff_world_y;
-    const double ff_body_y = -sin_yaw * ff_world_x + cos_yaw * ff_world_y;
+    const double ff_world_x = command.target.tangent_x * command.gamma_dot;
+    const double ff_world_y = command.target.tangent_y * command.gamma_dot;
+    worldToBody(ff_world_x, ff_world_y, command.feedforward_body_x, command.feedforward_body_y);
 
-    publishControl(
-      stamp, dt, target, target_yaw, gamma_dot, ff_body_x, ff_body_y, "follow_path", "");
+    computePositionFeedback(
+      command.target, dt, command.position_feedback_body_x, command.position_feedback_body_y);
 
-    gamma_ += gamma_dot * dt;
+    gamma_ += command.gamma_dot * dt;
     if (path_is_closed_ && total_length_ > 0.0) {
       while (gamma_ >= total_length_) {
         gamma_ -= total_length_;
@@ -246,38 +288,69 @@ private:
         resetControllerState();
       }
     }
+
+    return command;
   }
 
-  void publishControl(
-    const rclcpp::Time & stamp, double dt, const PathSample & target, double target_yaw,
-    double gamma_dot, double ff_body_x, double ff_body_y, const std::string & state_name,
-    const std::string & stop_reason)
+  ControlCommand computeLinearSegmentCommand()
   {
-    const double dx_world = target.x - current_x_;
-    const double dy_world = target.y - current_y_;
-    const double yaw_error = normalizeAngle(target_yaw - current_yaw_);
+    ControlCommand command;
+    const SegmentProjection projection = projectOnPath(
+      current_x_, current_y_, linear_projection_lookahead_);
+    gamma_ = projection.gamma;
+
+    command.target = sampleAt(gamma_);
+    command.target_yaw = desiredYaw(gamma_, command.target);
+    command.gamma_dot = desired_speed_;
+    command.state_name = "linear_segment";
+
+    const double dx_world = command.target.x - current_x_;
+    const double dy_world = command.target.y - current_y_;
+    const double normal_x = -command.target.tangent_y;
+    const double normal_y = command.target.tangent_x;
+    const double error_along =
+      dx_world * command.target.tangent_x + dy_world * command.target.tangent_y;
+    const double error_lateral = dx_world * normal_x + dy_world * normal_y;
+
+    const double cmd_world_x =
+      desired_speed_ * command.target.tangent_x +
+      linear_k_along_ * error_along * command.target.tangent_x +
+      linear_k_lateral_ * error_lateral * normal_x;
+    const double cmd_world_y =
+      desired_speed_ * command.target.tangent_y +
+      linear_k_along_ * error_along * command.target.tangent_y +
+      linear_k_lateral_ * error_lateral * normal_y;
+    worldToBody(cmd_world_x, cmd_world_y, command.feedforward_body_x, command.feedforward_body_y);
+
+    if (!path_is_closed_ && projection.gamma >= total_length_ && stop_at_end_) {
+      state_ = State::FINISHED;
+      resetControllerState();
+    }
+
+    return command;
+  }
+
+  void publishCommand(const rclcpp::Time & stamp, double dt, const ControlCommand & command)
+  {
+    const double dx_world = command.target.x - current_x_;
+    const double dy_world = command.target.y - current_y_;
+    const double yaw_error = normalizeAngle(command.target_yaw - current_yaw_);
 
     const double cos_yaw = std::cos(current_yaw_);
     const double sin_yaw = std::sin(current_yaw_);
     const double ex_body = cos_yaw * dx_world + sin_yaw * dy_world;
     const double ey_body = -sin_yaw * dx_world + cos_yaw * dy_world;
 
-    integral_x_ = clamp(integral_x_ + ex_body * dt, -max_integral_x_, max_integral_x_);
-    integral_y_ = clamp(integral_y_ + ey_body * dt, -max_integral_y_, max_integral_y_);
-    integral_yaw_ = clamp(integral_yaw_ + yaw_error * dt, -max_integral_yaw_, max_integral_yaw_);
+    integral_yaw_ = updateIntegral(integral_yaw_, yaw_error, dt, ki_yaw_, max_integral_yaw_);
 
-    derivative_x_ = (ex_body - prev_error_x_) / dt;
-    derivative_y_ = (ey_body - prev_error_y_) / dt;
     derivative_yaw_ = normalizeAngle(yaw_error - prev_error_yaw_) / dt;
 
-    prev_error_x_ = ex_body;
-    prev_error_y_ = ey_body;
     prev_error_yaw_ = yaw_error;
 
-    const double pid_x = kp_x_ * ex_body + ki_x_ * integral_x_ + kd_x_ * derivative_x_;
-    const double pid_y = kp_y_ * ey_body + ki_y_ * integral_y_ + kd_y_ * derivative_y_;
-    const double cmd_vx_raw = ff_body_x + pid_x;
-    const double cmd_vy_raw = ff_body_y + pid_y;
+    const double cmd_vx_raw =
+      command.feedforward_body_x + command.position_feedback_body_x;
+    const double cmd_vy_raw =
+      command.feedforward_body_y + command.position_feedback_body_y;
     const double cmd_w_raw =
       kp_yaw_ * yaw_error + ki_yaw_ * integral_yaw_ + kd_yaw_ * derivative_yaw_;
 
@@ -287,13 +360,14 @@ private:
     cmd.angular.z = clamp(cmd_w_raw, -max_angular_z_, max_angular_z_);
     pub_cmd_vel_->publish(cmd);
 
-    last_target_ = target;
-    last_target_yaw_ = target_yaw;
-    last_gamma_dot_ = gamma_dot;
+    last_target_ = command.target;
+    last_target_yaw_ = command.target_yaw;
+    last_gamma_dot_ = command.gamma_dot;
     last_error_along_ =
-      (current_x_ - target.x) * target.tangent_x + (current_y_ - target.y) * target.tangent_y;
-    last_ff_body_x_ = ff_body_x;
-    last_ff_body_y_ = ff_body_y;
+      (current_x_ - command.target.x) * command.target.tangent_x +
+      (current_y_ - command.target.y) * command.target.tangent_y;
+    last_ff_body_x_ = command.feedforward_body_x;
+    last_ff_body_y_ = command.feedforward_body_y;
     last_cmd_vx_raw_ = cmd_vx_raw;
     last_cmd_vy_raw_ = cmd_vy_raw;
     last_cmd_w_raw_ = cmd_w_raw;
@@ -306,7 +380,8 @@ private:
     last_ey_body_ = ey_body;
     last_yaw_error_ = yaw_error;
 
-    publishDebug(stamp, state_name, stop_reason, cmd.linear.x, cmd.linear.y, cmd.angular.z);
+    publishDebug(
+      stamp, command.state_name, command.stop_reason, cmd.linear.x, cmd.linear.y, cmd.angular.z);
   }
 
   void loadPath(const std::string & path_file)
@@ -429,8 +504,12 @@ private:
 
   double nearestGamma(double x, double y) const
   {
-    double best_gamma = 0.0;
-    double best_distance_sq = std::numeric_limits<double>::infinity();
+    return projectOnPath(x, y, 0.0).gamma;
+  }
+
+  SegmentProjection projectOnPath(double x, double y, double lookahead) const
+  {
+    SegmentProjection best;
     for (size_t i = 0; i + 1 < points_.size(); ++i) {
       const PathPoint & a = points_[i];
       const PathPoint & b = points_[i + 1];
@@ -448,12 +527,23 @@ private:
       const double dx = x - proj_x;
       const double dy = y - proj_y;
       const double distance_sq = dx * dx + dy * dy;
-      if (distance_sq < best_distance_sq) {
-        best_distance_sq = distance_sq;
-        best_gamma = cumulative_s_[i] + u * std::sqrt(ab_len_sq);
+      if (distance_sq < best.distance_sq) {
+        best.distance_sq = distance_sq;
+        best.gamma = cumulative_s_[i] + u * std::sqrt(ab_len_sq);
       }
     }
-    return best_gamma;
+    best.gamma += lookahead;
+    if (path_is_closed_ && total_length_ > 0.0) {
+      while (best.gamma < 0.0) {
+        best.gamma += total_length_;
+      }
+      while (best.gamma >= total_length_) {
+        best.gamma -= total_length_;
+      }
+    } else {
+      best.gamma = clamp(best.gamma, 0.0, total_length_);
+    }
+    return best;
   }
 
   double desiredYaw(double gamma, const PathSample & sample) const
@@ -470,6 +560,34 @@ private:
 
     const PathSample ahead = sampleAt(gamma + std::max(lookahead_distance_, 1e-6));
     return std::atan2(ahead.y - sample.y, ahead.x - sample.x);
+  }
+
+  void worldToBody(double world_x, double world_y, double & body_x, double & body_y) const
+  {
+    const double cos_yaw = std::cos(current_yaw_);
+    const double sin_yaw = std::sin(current_yaw_);
+    body_x = cos_yaw * world_x + sin_yaw * world_y;
+    body_y = -sin_yaw * world_x + cos_yaw * world_y;
+  }
+
+  void computePositionFeedback(
+    const PathSample & target, double dt, double & feedback_x, double & feedback_y)
+  {
+    const double dx_world = target.x - current_x_;
+    const double dy_world = target.y - current_y_;
+    double ex_body = 0.0;
+    double ey_body = 0.0;
+    worldToBody(dx_world, dy_world, ex_body, ey_body);
+
+    integral_x_ = updateIntegral(integral_x_, ex_body, dt, ki_x_, max_integral_x_);
+    integral_y_ = updateIntegral(integral_y_, ey_body, dt, ki_y_, max_integral_y_);
+    derivative_x_ = (ex_body - prev_error_x_) / dt;
+    derivative_y_ = (ey_body - prev_error_y_) / dt;
+    prev_error_x_ = ex_body;
+    prev_error_y_ = ey_body;
+
+    feedback_x = kp_x_ * ex_body + ki_x_ * integral_x_ + kd_x_ * derivative_x_;
+    feedback_y = kp_y_ * ey_body + ki_y_ * integral_y_ + kd_y_ * derivative_y_;
   }
 
   void publishDebug(
@@ -596,12 +714,22 @@ private:
     return std::max(min_value, std::min(value, max_value));
   }
 
+  static double updateIntegral(
+    double integral, double error, double dt, double ki, double max_integral)
+  {
+    if (ki == 0.0) {
+      return 0.0;
+    }
+    return clamp(integral + error * dt, -max_integral, max_integral);
+  }
+
   std::string control_frame_id_;
   std::string current_frame_id_;
   std::string pose_topic_;
   std::string cmd_vel_topic_;
   std::string error_topic_;
   std::string debug_topic_;
+  std::string controller_mode_;
   std::string path_file_;
   std::string startup_mode_;
   std::string heading_mode_;
@@ -617,6 +745,9 @@ private:
   double k_gamma_ = 0.0;
   double min_gamma_dot_ = 0.0;
   double max_gamma_dot_ = 0.0;
+  double linear_k_along_ = 0.0;
+  double linear_k_lateral_ = 0.0;
+  double linear_projection_lookahead_ = 0.0;
   double fixed_heading_ = 0.0;
   double lookahead_distance_ = 0.0;
   double beacon_x_ = 0.0;

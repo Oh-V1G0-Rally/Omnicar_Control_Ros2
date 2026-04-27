@@ -1,0 +1,41 @@
+topics:
+  debug_topic: /omnicar/path_follower_debug
+
+map_config: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/map_feup_180x120.yaml
+controller_config: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/sdpo_motion_control/config/path_follower.yaml
+
+plot:
+  yaw_arrow_stride: 15
+
+controller_defaults:
+  controller_name: LINEAR
+  controller_version: V01
+  controller_mode: linear_segment
+  heading_mode: fixed
+  desired_speed: 0.35
+  k_gamma: 0.5
+  min_gamma_dot: 0.1
+  max_gamma_dot: 0.35
+  linear_k_along: 0.0
+  linear_k_lateral: 0.8
+  linear_projection_lookahead: 0.0
+  control_rate_hz: 50.0
+  debug_publish_rate_hz: 50.0
+  entry_tolerance_xy: 0.03
+  path_is_closed: true
+  stop_at_end: false
+  kp_x: 0.8
+  ki_x: 0.0
+  kd_x: 0.0
+  kp_y: 0.9
+  ki_y: 0.0
+  kd_y: 0.0
+  kp_yaw: 0.5
+  ki_yaw: 0.0
+  kd_yaw: 0.0
+  max_linear_x: 0.40
+  max_linear_y: 0.40
+  max_angular_z: 0.35
+  max_integral_x: 0.15
+  max_integral_y: 0.15
+  max_integral_yaw: 0.2

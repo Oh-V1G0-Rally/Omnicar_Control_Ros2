@@ -1,0 +1,39 @@
+## sim parameters
+dt_sim: 0.001
+dt_control: 0.005 #0.02 for RL 0.005 for others
+v_min : 2
+w_max : 500
+v_max : 5
+w_delta_lim: 50
+accel : 10
+deaccel : -28
+wheel_radius : 0.025
+robot_diameter : 0.095
+
+##map parameters
+map_path: "../splines/"  # path to your map
+track: "Silverstone"
+## motor parameters
+motor_gain: 36.75
+gain_mismatch: 0
+motor_time_constant: 2.0
+time_constant_mismatch: 0.00
+measurement_bias: 0
+measurement_std: 0
+closed_loop_constant: 0.20
+max_delta_u : 22.2
+max_u: 22.2
+kf_percentage: 0.66
+
+## Classic Controllers Parameters
+k_nlc : 5
+b_smc : 2
+gamma : 0.5
+ktheta : 14.14
+kd_theta : 1
+td_y : 0.116
+ki : 2
+## PPO
+
+ppo_w : 1
+model_path : "model/PPO.zip"

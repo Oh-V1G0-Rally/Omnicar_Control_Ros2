@@ -1,0 +1,22 @@
+# Ignore the .idea directory (for JetBrains IDEs)
+.idea/
+
+.venv/
+
+# Ignore Python cache files and directories
+/__pycache__/
+*.pyc
+*.html
+
+# Ignore all .pth files
+*.pth
+*.pkl
+*.zip
+*.mp4
+*.npz
+
+# Ignore TensorBoard event files
+events.out.tfevents.*
+.DS_Store*
+*DonkeySim*
+#*_map.png

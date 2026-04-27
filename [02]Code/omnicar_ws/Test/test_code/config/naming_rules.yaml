@@ -1,0 +1,14 @@
+test_id_pattern: PF_YYYY-MM-DD_PATH_FRAME_CONTROLLER_VERSION_RUN
+frame_values:
+  - MAP
+  - ODOM
+examples:
+  - PF_2026-04-27_RECT_MAP_PID_V01_R01
+  - PF_2026-04-27_RECT_MAP_PID_V01_R02
+fields:
+  prefix: PF
+  path: uppercase short path identifier
+  frame: MAP or ODOM
+  controller: uppercase short controller identifier
+  version: VNN
+  run: RNN

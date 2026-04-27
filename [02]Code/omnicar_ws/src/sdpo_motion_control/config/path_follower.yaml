@@ -10,6 +10,8 @@
     error_topic: path_follower_error
     # Topic publishing structured path-following debug data.
     debug_topic: path_follower_debug
+    # Current controller implementation: moving-reference path follower with P-only feedback.
+    controller_mode: moving_reference_p
 
     # CSV path with x,y[,yaw] columns. Header rows are accepted.
     path_file: "/home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rectangle.csv"
@@ -17,7 +19,7 @@
 
     control_rate_hz: 50.0
     publish_debug_topics: true
-    debug_publish_rate_hz: 20.0
+    debug_publish_rate_hz: 50.0
     publish_zero_when_inactive: true
 
     # First go to the closest point on the path, then start advancing gamma.
@@ -28,8 +30,8 @@
     # Reference-point motion along the path, in meters and seconds.
     desired_speed: 0.35
     k_gamma: 0.5
-    min_gamma_dot: 0.0
-    max_gamma_dot: 0.38
+    min_gamma_dot: 0.1
+    max_gamma_dot: 0.35
 
     # Heading modes: fixed, tangent, path, beacon.
     heading_mode: fixed
@@ -38,12 +40,12 @@
     beacon_x: 0.0
     beacon_y: 0.0
 
-    # PID gains reused from go_to_point_controller.yaml.
-    kp_x: 0.8
-    ki_x: 0.03
+    # PID structure kept in code; integral and derivative are inactive for this P-only baseline.
+    kp_x: 0.5
+    ki_x: 0.0
     kd_x: 0.0
-    kp_y: 0.9
-    ki_y: 0.06
+    kp_y: 0.6
+    ki_y: 0.0
     kd_y: 0.0
     kp_yaw: 0.5
     ki_yaw: 0.0
