@@ -36,6 +36,8 @@ CONTROLLER_CONFIG_KEYS = [
     "linear_k_along",
     "linear_k_lateral",
     "linear_projection_lookahead",
+    "linear_projection_search_behind",
+    "linear_projection_search_ahead",
     "control_rate_hz",
     "debug_publish_rate_hz",
     "entry_tolerance_xy",
@@ -131,6 +133,10 @@ def build_summary_row(test_info: dict, metrics: dict, result_dir: Path) -> dict:
         "linear_k_lateral": test_info["controller"].get("linear_k_lateral", ""),
         "linear_projection_lookahead": test_info["controller"].get(
             "linear_projection_lookahead", ""),
+        "linear_projection_search_behind": test_info["controller"].get(
+            "linear_projection_search_behind", ""),
+        "linear_projection_search_ahead": test_info["controller"].get(
+            "linear_projection_search_ahead", ""),
         "control_rate_hz": test_info["controller"]["control_rate_hz"],
         "debug_publish_rate_hz": test_info["controller"]["debug_publish_rate_hz"],
         "entry_tolerance_xy": test_info["controller"]["entry_tolerance_xy"],

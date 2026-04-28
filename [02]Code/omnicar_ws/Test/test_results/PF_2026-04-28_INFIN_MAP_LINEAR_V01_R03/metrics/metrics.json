@@ -1,0 +1,19 @@
+{
+  "duration_s": 28.857389450073242,
+  "samples": 924,
+  "dt_mean_s": 0.031264777302354545,
+  "path_length_real_m": 5.900571990269933,
+  "gamma_final_m": 0.7830472249933922,
+  "gamma_progress_ratio": 0.17192270139282267,
+  "rmse_x_m": 0.022275919890265346,
+  "rmse_y_m": 0.02062229458823292,
+  "rmse_yaw_rad": 0.009926797263112595,
+  "rmse_error_along_m": 0.0006201872790690394,
+  "mean_abs_error_along_m": 0.00012315275565955846,
+  "max_abs_error_along_m": 0.006033250054528816,
+  "iae_error_along": 0.003697862292127216,
+  "max_abs_error_yaw_rad": 0.02041582270675057,
+  "sat_vx_ratio": 0.0,
+  "sat_vy_ratio": 0.0,
+  "sat_w_ratio": 0.0
+}

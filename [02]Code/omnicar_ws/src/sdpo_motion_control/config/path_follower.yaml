@@ -11,10 +11,10 @@
     # Topic publishing structured path-following debug data.
     debug_topic: path_follower_debug
     # Current controller implementation: moving-reference path follower with P-only feedback.
-    controller_mode: moving_reference_p
+    controller_mode: linear_segment
 
     # CSV path with x,y[,yaw] columns. Header rows are accepted.
-    path_file: "/home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rectangle.csv"
+    path_file: "/home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rounded_rect_eight.csv"
     path_is_closed: true
 
     control_rate_hz: 50.0
@@ -27,11 +27,19 @@
     entry_tolerance_xy: 0.03
     stop_at_end: false
 
-    # Reference-point motion along the path, in meters and seconds.
-    desired_speed: 0.35
-    k_gamma: 0.5
-    min_gamma_dot: 0.1
-    max_gamma_dot: 0.35
+    # Motion tuning, in meters and seconds.
+    desired_speed: 0.20
+    k_gamma: 0.20
+    min_gamma_dot: 0.05
+    max_gamma_dot: 0.20
+    linear_k_along: 0.0
+    linear_k_lateral: 1.4
+    linear_projection_lookahead: 0.0
+    linear_projection_search_behind: 0.10
+    linear_projection_search_ahead: 0.60
+    max_linear_x: 0.25
+    max_linear_y: 0.25
+    max_angular_z: 0.25
 
     # Heading modes: fixed, tangent, path, beacon.
     heading_mode: fixed
@@ -44,16 +52,13 @@
     kp_x: 0.5
     ki_x: 0.0
     kd_x: 0.0
-    kp_y: 0.6
+    kp_y: 0.5
     ki_y: 0.0
     kd_y: 0.0
     kp_yaw: 0.5
     ki_yaw: 0.0
     kd_yaw: 0.0
 
-    max_linear_x: 0.40
-    max_linear_y: 0.40
-    max_angular_z: 0.35
     max_integral_x: 0.15
     max_integral_y: 0.15
     max_integral_yaw: 0.2

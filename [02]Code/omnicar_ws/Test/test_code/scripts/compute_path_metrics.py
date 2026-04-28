@@ -33,6 +33,13 @@ def compute_metrics(df: pd.DataFrame, path_reference: pd.DataFrame | None = None
         "gamma_progress_ratio": gamma_progress_ratio,
         "rmse_x_m": rmse(pd.to_numeric(df["current_x"], errors="coerce") - pd.to_numeric(df["target_x"], errors="coerce")),
         "rmse_y_m": rmse(pd.to_numeric(df["current_y"], errors="coerce") - pd.to_numeric(df["target_y"], errors="coerce")),
+        "rmse_tracking_error_norm_m": rmse(df["tracking_error_norm"]),
+        "mean_tracking_error_norm_m": float(
+            pd.to_numeric(df["tracking_error_norm"], errors="coerce").abs().mean()
+        ),
+        "max_tracking_error_norm_m": float(
+            pd.to_numeric(df["tracking_error_norm"], errors="coerce").abs().max()
+        ),
         "rmse_yaw_rad": rmse(df["error_yaw_unwrapped"]),
         "rmse_error_along_m": rmse(df["error_along"]),
         "mean_abs_error_along_m": mae(df["error_along"]),

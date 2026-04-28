@@ -19,6 +19,8 @@ controller_defaults:
   linear_k_along: 0.0
   linear_k_lateral: 0.8
   linear_projection_lookahead: 0.0
+  linear_projection_search_behind: 0.10
+  linear_projection_search_ahead: 0.60
   control_rate_hz: 50.0
   debug_publish_rate_hz: 50.0
   entry_tolerance_xy: 0.03

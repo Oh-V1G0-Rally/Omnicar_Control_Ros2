@@ -49,6 +49,8 @@ public:
     linear_k_along_ = declare_parameter<double>("linear_k_along", 0.0);
     linear_k_lateral_ = declare_parameter<double>("linear_k_lateral", 0.8);
     linear_projection_lookahead_ = declare_parameter<double>("linear_projection_lookahead", 0.0);
+    linear_projection_search_behind_ = declare_parameter<double>("linear_projection_search_behind", 0.10);
+    linear_projection_search_ahead_ = declare_parameter<double>("linear_projection_search_ahead", 0.60);
     fixed_heading_ = declare_parameter<double>("fixed_heading", 0.0);
     lookahead_distance_ = declare_parameter<double>("lookahead_distance", 0.10);
     beacon_x_ = declare_parameter<double>("beacon_x", 0.0);
@@ -295,8 +297,9 @@ private:
   ControlCommand computeLinearSegmentCommand()
   {
     ControlCommand command;
-    const SegmentProjection projection = projectOnPath(
-      current_x_, current_y_, linear_projection_lookahead_);
+    const SegmentProjection projection = projectOnPathNearGamma(
+      current_x_, current_y_, gamma_, linear_projection_search_behind_,
+      linear_projection_search_ahead_, linear_projection_lookahead_);
     gamma_ = projection.gamma;
 
     command.target = sampleAt(gamma_);
@@ -532,18 +535,86 @@ private:
         best.gamma = cumulative_s_[i] + u * std::sqrt(ab_len_sq);
       }
     }
-    best.gamma += lookahead;
-    if (path_is_closed_ && total_length_ > 0.0) {
-      while (best.gamma < 0.0) {
-        best.gamma += total_length_;
-      }
-      while (best.gamma >= total_length_) {
-        best.gamma -= total_length_;
-      }
-    } else {
-      best.gamma = clamp(best.gamma, 0.0, total_length_);
-    }
+    best.gamma = normalizePathGamma(best.gamma + lookahead);
     return best;
+  }
+
+  SegmentProjection projectOnPathNearGamma(
+    double x, double y, double center_gamma, double search_behind, double search_ahead,
+    double lookahead) const
+  {
+    if (total_length_ <= 0.0) {
+      return SegmentProjection();
+    }
+
+    search_behind = std::max(0.0, search_behind);
+    search_ahead = std::max(0.0, search_ahead);
+
+    const double window_start = center_gamma - search_behind;
+    const double window_end = center_gamma + search_ahead;
+    SegmentProjection best;
+
+    const int min_wrap = path_is_closed_ ? -1 : 0;
+    const int max_wrap = path_is_closed_ ? 1 : 0;
+    for (int wrap = min_wrap; wrap <= max_wrap; ++wrap) {
+      const double offset = static_cast<double>(wrap) * total_length_;
+      for (size_t i = 0; i + 1 < points_.size(); ++i) {
+        const double segment_start = cumulative_s_[i] + offset;
+        const double segment_end = cumulative_s_[i + 1] + offset;
+        if (segment_end < window_start || segment_start > window_end) {
+          continue;
+        }
+
+        const PathPoint & a = points_[i];
+        const PathPoint & b = points_[i + 1];
+        const double ab_x = b.x - a.x;
+        const double ab_y = b.y - a.y;
+        const double ab_len_sq = ab_x * ab_x + ab_y * ab_y;
+        if (ab_len_sq <= 1e-12) {
+          continue;
+        }
+
+        const double ap_x = x - a.x;
+        const double ap_y = y - a.y;
+        double u = clamp((ap_x * ab_x + ap_y * ab_y) / ab_len_sq, 0.0, 1.0);
+        const double segment_length = std::sqrt(ab_len_sq);
+        const double gamma_candidate = segment_start + u * segment_length;
+        const double clamped_gamma_candidate =
+          clamp(gamma_candidate, window_start, window_end);
+        u = (clamped_gamma_candidate - segment_start) / segment_length;
+
+        const double proj_x = a.x + u * ab_x;
+        const double proj_y = a.y + u * ab_y;
+        const double dx = x - proj_x;
+        const double dy = y - proj_y;
+        const double distance_sq = dx * dx + dy * dy;
+        if (distance_sq < best.distance_sq) {
+          best.distance_sq = distance_sq;
+          best.gamma = clamped_gamma_candidate;
+        }
+      }
+    }
+
+    if (!std::isfinite(best.distance_sq)) {
+      best.gamma = center_gamma;
+    }
+
+    best.gamma = normalizePathGamma(best.gamma + lookahead);
+    return best;
+  }
+
+  double normalizePathGamma(double gamma) const
+  {
+    if (path_is_closed_ && total_length_ > 0.0) {
+      while (gamma < 0.0) {
+        gamma += total_length_;
+      }
+      while (gamma >= total_length_) {
+        gamma -= total_length_;
+      }
+      return gamma;
+    }
+    return clamp(gamma, 0.0, total_length_);
   }
 
   double desiredYaw(double gamma, const PathSample & sample) const
@@ -748,6 +819,8 @@ private:
   double linear_k_along_ = 0.0;
   double linear_k_lateral_ = 0.0;
   double linear_projection_lookahead_ = 0.0;
+  double linear_projection_search_behind_ = 0.0;
+  double linear_projection_search_ahead_ = 0.0;
   double fixed_heading_ = 0.0;
   double lookahead_distance_ = 0.0;
   double beacon_x_ = 0.0;
