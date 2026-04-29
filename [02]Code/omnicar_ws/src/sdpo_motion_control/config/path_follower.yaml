@@ -28,18 +28,18 @@
     stop_at_end: false
 
     # Motion tuning, in meters and seconds.
-    desired_speed: 0.20
-    k_gamma: 0.20
+    desired_speed: 0.50
+    k_gamma: 0.40
     min_gamma_dot: 0.05
-    max_gamma_dot: 0.20
-    linear_k_along: 0.0
-    linear_k_lateral: 1.4
+    max_gamma_dot: 0.30
+    linear_k_along: 1.0
+    linear_k_lateral: 8.0
     linear_projection_lookahead: 0.0
     linear_projection_search_behind: 0.10
     linear_projection_search_ahead: 0.60
-    max_linear_x: 0.25
-    max_linear_y: 0.25
-    max_angular_z: 0.25
+    max_linear_x: 0.55
+    max_linear_y: 0.55
+    max_angular_z: 0.40
 
     # Heading modes: fixed, tangent, path, beacon.
     heading_mode: fixed

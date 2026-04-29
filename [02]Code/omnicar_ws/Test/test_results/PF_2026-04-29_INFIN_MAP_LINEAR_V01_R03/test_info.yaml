@@ -1,0 +1,100 @@
+test:
+  test_id: PF_2026-04-29_INFIN_MAP_LINEAR_V01_R03
+  test_type: path_following
+  date: '2026-04-29'
+  run_index: R03
+  notes: ''
+input:
+  bag_name: PF_2026-04-29_INFIN_MAP_LINEAR_V01_R03
+  bag_folder: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/bags/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R03
+  bag_file: PF_2026-04-29_INFIN_MAP_LINEAR_V01_R03_0.mcap
+  rosbag_metadata_file: metadata.yaml
+  debug_topic: /unnamed_robot/path_follower_debug
+scenario:
+  path_name: INFIN
+  path_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rounded_rect_eight.csv
+  frame: MAP
+  map_name: FEUP_180x120
+  map_width_m: 1.8
+  map_height_m: 1.2
+  pillars:
+  - - 0.9175
+    - 0.6675
+  - - -0.9175
+    - 0.6675
+  - - 0.9175
+    - -0.6675
+  - - -0.9175
+    - -0.6675
+controller:
+  controller_name: PONLY
+  controller_version: V01
+  controller_mode: linear_segment
+  heading_mode: fixed
+  desired_speed: 0.2
+  k_gamma: 0.2
+  min_gamma_dot: 0.05
+  max_gamma_dot: 0.2
+  linear_k_along: 2.0
+  linear_k_lateral: 10.0
+  linear_projection_lookahead: 0.0
+  linear_projection_search_behind: 0.1
+  linear_projection_search_ahead: 0.6
+  control_rate_hz: 50.0
+  debug_publish_rate_hz: 50.0
+  entry_tolerance_xy: 0.03
+  path_is_closed: true
+  stop_at_end: false
+  kp_x: 0.5
+  ki_x: 0.0
+  kd_x: 0.0
+  kp_y: 0.5
+  ki_y: 0.0
+  kd_y: 0.0
+  kp_yaw: 0.5
+  ki_yaw: 0.0
+  kd_yaw: 0.0
+  max_linear_x: 0.25
+  max_linear_y: 0.25
+  max_angular_z: 0.25
+  max_integral_x: 0.15
+  max_integral_y: 0.15
+  max_integral_yaw: 0.2
+  debug_topic: /unnamed_robot/path_follower_debug
+analysis:
+  analysis_timestamp: '2026-04-29T15:10:10'
+  analysis_code_version: '1.0'
+  analysis_config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/analysis_config.yaml
+  controller_config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/sdpo_motion_control/config/path_follower.yaml
+  yaw_arrow_stride: 15
+  unwrap_yaw: true
+  output_folder: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R03
+outputs:
+  raw_debug_csv: raw/path_follower_debug.csv
+  raw_path_csv: raw/path_reference.csv
+  xy_figure: figures/01_xy_map.png
+  tracking_figure: figures/02_target_tracking_and_errors.png
+  metrics_figure: figures/03_metrics_summary.png
+  local_metrics_csv: metrics/metrics.csv
+  local_metrics_json: metrics/metrics.json
+summary_metrics:
+  duration_s: 33.37835121154785
+  samples: 1066
+  dt_mean_s: 0.0313411748465238
+  path_length_real_m: 6.659032854378187
+  gamma_final_m: 1.8701791262730556
+  gamma_progress_ratio: 0.4106090120938054
+  rmse_x_m: 0.007905142021942377
+  rmse_y_m: 0.007368833764090292
+  rmse_tracking_error_norm_m: 0.010806987620510921
+  mean_tracking_error_norm_m: 0.008150363378712545
+  max_tracking_error_norm_m: 0.03547167776683996
+  rmse_yaw_rad: 0.008491315128102028
+  rmse_error_along_m: 0.0002080917949525416
+  mean_abs_error_along_m: 2.889471728326005e-05
+  max_abs_error_along_m: 0.003125753276602099
+  iae_error_along: 0.0009020517726889113
+  max_abs_error_yaw_rad: 0.028474719132841015
+  sat_vx_ratio: 0.0
+  sat_vy_ratio: 0.0009380863039399625
+  sat_w_ratio: 0.0

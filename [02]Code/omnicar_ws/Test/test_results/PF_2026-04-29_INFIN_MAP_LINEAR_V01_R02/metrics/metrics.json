@@ -1,0 +1,22 @@
+{
+  "duration_s": 39.19904851913452,
+  "samples": 1268,
+  "dt_mean_s": 0.030938475547856767,
+  "path_length_real_m": 7.792241225399328,
+  "gamma_final_m": 4.486009730236413,
+  "gamma_progress_ratio": 0.9849302656084886,
+  "rmse_x_m": 0.01247301717903588,
+  "rmse_y_m": 0.011271533907706289,
+  "rmse_tracking_error_norm_m": 0.016811413806729545,
+  "mean_tracking_error_norm_m": 0.013077514674622525,
+  "max_tracking_error_norm_m": 0.04940432629187841,
+  "rmse_yaw_rad": 0.008243085168834393,
+  "rmse_error_along_m": 0.0003119113310987566,
+  "mean_abs_error_along_m": 4.750593313809473e-05,
+  "max_abs_error_along_m": 0.0036957766155481207,
+  "iae_error_along": 0.0020112735690456913,
+  "max_abs_error_yaw_rad": 0.0264269521478453,
+  "sat_vx_ratio": 0.0,
+  "sat_vy_ratio": 0.0,
+  "sat_w_ratio": 0.0
+}
