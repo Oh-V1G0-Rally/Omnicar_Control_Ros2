@@ -52,7 +52,7 @@
     # length. Because this implementation samples a control grid, total work is
     # also proportional to:
     #   vx_samples * vy_samples * w_samples * gamma_dot_samples * N
-    prediction_horizon: 12
+    prediction_horizon: 14
     prediction_dt: 0.08
 
     # Debug publication can run slower than the control loop to reduce bag size.
@@ -80,24 +80,24 @@
     # These are real safety limits. The optimizer samples candidates inside this
     # range, so unlike a post-hoc saturation-only design, the selected command is
     # already aware of these bounds.
-    max_linear_x: 0.25
-    max_linear_y: 0.25
-    max_angular_z: 0.45
+    max_linear_x: 0.70
+    max_linear_y: 0.70
+    max_angular_z: 0.8
 
     # Path-progress speed bounds [m/s]. gamma_dot is the speed at which the
     # virtual reference point advances along the path.
-    min_gamma_dot: 0.00
-    max_gamma_dot: 0.30
+    min_gamma_dot: 0.05
+    max_gamma_dot: 0.70
 
     # Rate limits used while sampling candidate controls.
     #
     # At each cycle the sampled commands are centered around the previous command
     # and limited by max_accel_* * dt. Lower values make the command smoother but
     # can make the controller slow to react.
-    max_accel_x: 0.60
-    max_accel_y: 0.60
-    max_accel_w: 1.20
-    max_gamma_accel: 0.80
+    max_accel_x: 1.80
+    max_accel_y: 1.80
+    max_accel_w: 2.5
+    max_gamma_accel: 2.5
 
     # Q-like tracking weights.
     #
@@ -117,12 +117,12 @@
     # q_progress is a reward, not a penalty: higher values encourage larger
     # gamma_dot and faster progression along the path. Too high can make the
     # robot rush the path and increase tracking error.
-    q_contour: 20.0
-    q_lag: 2.0
-    q_yaw: 1.0
-    q_terminal_contour: 30.0
-    q_terminal_lag: 4.0
-    q_progress: 0.40
+    q_contour: 18.0
+    q_lag: 1.0
+    q_yaw: 0.6
+    q_terminal_contour: 25.0
+    q_terminal_lag: 2.0
+    q_progress: 1.6
 
     # R-like effort and smoothness weights.
     #
@@ -133,14 +133,14 @@
     # r_delta_* penalize changes from the previous command. Increase them to
     # reduce jitter and make commands smoother; decrease them if the controller
     # reacts too slowly to path error.
-    r_vx: 0.15
-    r_vy: 0.15
-    r_w: 0.10
-    r_gamma_dot: 0.05
-    r_delta_vx: 0.50
-    r_delta_vy: 0.50
-    r_delta_w: 0.20
-    r_delta_gamma_dot: 0.10
+    r_vx: 0.07
+    r_vy: 0.07
+    r_w: 0.05
+    r_gamma_dot: 0.02
+    r_delta_vx: 0.25
+    r_delta_vy: 0.25
+    r_delta_w: 0.10
+    r_delta_gamma_dot: 0.30
 
     # Deterministic optimizer grid resolution.
     #
@@ -153,4 +153,4 @@
     vx_samples: 5
     vy_samples: 5
     w_samples: 5
-    gamma_dot_samples: 5
+    gamma_dot_samples: 7

@@ -32,6 +32,10 @@ add_executable(path_follower_node
   src/path_follower_node.cpp
 )
 
+add_executable(nonlinear_mpcc_controller_node
+  src/nonlinear_mpcc_controller_node.cpp
+)
+
 ament_target_dependencies(go_to_point_controller_node
   rclcpp
   geometry_msgs
@@ -49,14 +53,24 @@ ament_target_dependencies(path_follower_node
   tf2_geometry_msgs
 )
 
+ament_target_dependencies(nonlinear_mpcc_controller_node
+  rclcpp
+  geometry_msgs
+  std_msgs
+  tf2
+  tf2_geometry_msgs
+)
+
 rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(go_to_point_controller_node "${cpp_typesupport_target}")
 target_link_libraries(path_follower_node "${cpp_typesupport_target}")
+target_link_libraries(nonlinear_mpcc_controller_node "${cpp_typesupport_target}")
 
 install(TARGETS
   go_to_point_controller_node
   path_follower_node
+  nonlinear_mpcc_controller_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

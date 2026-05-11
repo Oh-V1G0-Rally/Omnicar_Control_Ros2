@@ -1,0 +1,124 @@
+test:
+  test_id: PF_2026-05-11_INFIN_MAP_MPCC_V01_R01
+  test_type: path_following
+  date: '2026-05-11'
+  run_index: R01
+  notes: ''
+input:
+  bag_name: PF_2026-05-11_INFIN_MAP_MPCC_V01_R01
+  bag_folder: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/bags/PF_2026-05-11_INFIN_MAP_MPCC_V01_R01
+  bag_file: PF_2026-05-11_INFIN_MAP_MPCC_V01_R01_0.mcap
+  rosbag_metadata_file: metadata.yaml
+  debug_topic: /unnamed_robot/path_follower_debug
+scenario:
+  path_name: INFIN
+  path_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rounded_rect_eight.csv
+  frame: MAP
+  map_name: FEUP_180x120
+  map_width_m: 1.8
+  map_height_m: 1.2
+  pillars:
+  - - 0.9175
+    - 0.6675
+  - - -0.9175
+    - 0.6675
+  - - 0.9175
+    - -0.6675
+  - - -0.9175
+    - -0.6675
+controller:
+  controller_name: MPCC
+  controller_version: V01
+  controller_mode: nonlinear_mpcc
+  heading_mode: fixed
+  desired_speed: ''
+  k_gamma: ''
+  min_gamma_dot: 0.0
+  max_gamma_dot: 0.3
+  linear_k_along: ''
+  linear_k_lateral: ''
+  linear_projection_lookahead: ''
+  linear_projection_search_behind: ''
+  linear_projection_search_ahead: ''
+  control_rate_hz: 30.0
+  debug_publish_rate_hz: 20.0
+  entry_tolerance_xy: ''
+  path_is_closed: true
+  stop_at_end: false
+  kp_x: ''
+  ki_x: ''
+  kd_x: ''
+  kp_y: ''
+  ki_y: ''
+  kd_y: ''
+  kp_yaw: ''
+  ki_yaw: ''
+  kd_yaw: ''
+  max_linear_x: 0.25
+  max_linear_y: 0.25
+  max_angular_z: 0.45
+  max_integral_x: ''
+  max_integral_y: ''
+  max_integral_yaw: ''
+  prediction_horizon: 12
+  prediction_dt: 0.08
+  q_contour: 20.0
+  q_lag: 2.0
+  q_yaw: 1.0
+  q_terminal_contour: 30.0
+  q_terminal_lag: 4.0
+  q_progress: 0.4
+  r_vx: 0.15
+  r_vy: 0.15
+  r_w: 0.1
+  r_gamma_dot: 0.05
+  r_delta_vx: 0.5
+  r_delta_vy: 0.5
+  r_delta_w: 0.2
+  r_delta_gamma_dot: 0.1
+  max_accel_x: 0.6
+  max_accel_y: 0.6
+  max_accel_w: 1.2
+  max_gamma_accel: 0.8
+  vx_samples: 5
+  vy_samples: 5
+  w_samples: 5
+  gamma_dot_samples: 5
+  debug_topic: /unnamed_robot/path_follower_debug
+analysis:
+  analysis_timestamp: '2026-05-11T15:33:35'
+  analysis_code_version: '1.0'
+  analysis_config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/analysis_config_mpcc.yaml
+  controller_config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/sdpo_motion_control/config/nonlinear_mpcc_controller.yaml
+  yaw_arrow_stride: 15
+  unwrap_yaw: true
+  output_folder: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-05-11_INFIN_MAP_MPCC_V01_R01
+outputs:
+  raw_debug_csv: raw/path_follower_debug.csv
+  raw_path_csv: raw/path_reference.csv
+  xy_figure: figures/01_xy_map.png
+  tracking_figure: figures/02_target_tracking_and_errors.png
+  metrics_figure: figures/03_metrics_summary.png
+  local_metrics_csv: metrics/metrics.csv
+  local_metrics_json: metrics/metrics.json
+summary_metrics:
+  duration_s: 54.4648072719574
+  samples: 818
+  dt_mean_s: 0.06666439078574957
+  path_length_real_m: 9.582577580988001
+  gamma_final_m: 2.1352520042711447
+  gamma_progress_ratio: 0.46880734777117933
+  rmse_x_m: 0.020188121668417023
+  rmse_y_m: 0.03168417164961233
+  rmse_tracking_error_norm_m: 0.03756922929234651
+  mean_tracking_error_norm_m: 0.033335487386536404
+  max_tracking_error_norm_m: 0.0850781061991343
+  rmse_yaw_rad: 0.006686275321760017
+  rmse_error_along_m: 0.036627377169297176
+  mean_abs_error_along_m: 0.03210211234440112
+  max_abs_error_along_m: 0.08507372870630564
+  iae_error_along: 1.7487495132433237
+  max_abs_error_yaw_rad: 0.04134813120398517
+  sat_vx_ratio: 0.0
+  sat_vy_ratio: 0.0
+  sat_w_ratio: 0.0
