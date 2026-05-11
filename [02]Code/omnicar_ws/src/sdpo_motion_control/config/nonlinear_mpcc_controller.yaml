@@ -1,0 +1,156 @@
+/**:
+  ros__parameters:
+    # Frame and topic interface.
+    #
+    # The controller expects the measured robot pose and the path CSV coordinates
+    # to be expressed in the same frame. If the incoming PoseStamped has a
+    # different header.frame_id, the controller stops and publishes zero command.
+    control_frame_id: map
+
+    # Input robot pose. In the current stack this is the unified map-frame pose
+    # used also by the linear_segment and moving_reference_p path followers.
+    pose_topic: pose
+
+    # Output body-frame velocity command:
+    #   linear.x  = forward velocity [m/s]
+    #   linear.y  = lateral velocity [m/s]
+    #   angular.z = yaw rate [rad/s]
+    cmd_vel_topic: cmd_vel
+
+    # Keep these names aligned with path_follower.yaml so rosbag files from
+    # MPCC, linear_segment, and moving_reference_p contain the same debug topic
+    # names and can be processed by the same plotting/benchmark scripts.
+    #
+    # Note: for this controller, path_follower_error.linear.x is contour error
+    # and path_follower_error.linear.y is lag error. In the classic path follower
+    # they are body-frame x/y errors.
+    error_topic: path_follower_error
+    debug_topic: path_follower_debug
+
+    # Reference path.
+    #
+    # CSV path with x,y[,yaw] columns. Header rows are accepted.
+    # If a yaw column is present and heading_mode is "path", the controller uses
+    # it as the yaw reference. Otherwise yaw can be fixed or tangent-derived.
+    path_file: "/home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/src/splines/FEUP/FEUP_rounded_rect_eight.csv"
+
+    # true  = gamma wraps at the end of the path, useful for closed loops.
+    # false = gamma is clamped at the end; combine with stop_at_end if needed.
+    path_is_closed: true
+
+    # Runtime rates.
+    #
+    # control_rate_hz is the ROS timer rate. prediction_dt is the model step used
+    # inside the horizon. They do not have to be identical, but keeping them close
+    # makes interpretation easier during early tests.
+    control_rate_hz: 30.0
+
+    # Horizon length N. The prediction time is:
+    #   T_horizon = prediction_horizon * prediction_dt
+    #
+    # Larger N sees farther ahead but increases CPU cost linearly in the rollout
+    # length. Because this implementation samples a control grid, total work is
+    # also proportional to:
+    #   vx_samples * vy_samples * w_samples * gamma_dot_samples * N
+    prediction_horizon: 12
+    prediction_dt: 0.08
+
+    # Debug publication can run slower than the control loop to reduce bag size.
+    publish_debug_topics: true
+    debug_publish_rate_hz: 20.0
+
+    # Publish zero Twist while inactive/stopped. Keep true for hardware tests.
+    publish_zero_when_inactive: true
+
+    # For an open path, true stops at the final point. For a closed path this is
+    # normally false because gamma wraps continuously.
+    stop_at_end: false
+
+    # Heading modes: fixed, tangent, path.
+    #
+    # fixed   = track fixed_heading.
+    # tangent = track the local path tangent computed with lookahead_distance.
+    # path    = use CSV yaw when available, otherwise fall back to tangent.
+    heading_mode: fixed
+    fixed_heading: 0.0
+    lookahead_distance: 0.10
+
+    # Hard command limits for geometry_msgs/Twist in the robot body frame.
+    #
+    # These are real safety limits. The optimizer samples candidates inside this
+    # range, so unlike a post-hoc saturation-only design, the selected command is
+    # already aware of these bounds.
+    max_linear_x: 0.25
+    max_linear_y: 0.25
+    max_angular_z: 0.45
+
+    # Path-progress speed bounds [m/s]. gamma_dot is the speed at which the
+    # virtual reference point advances along the path.
+    min_gamma_dot: 0.00
+    max_gamma_dot: 0.30
+
+    # Rate limits used while sampling candidate controls.
+    #
+    # At each cycle the sampled commands are centered around the previous command
+    # and limited by max_accel_* * dt. Lower values make the command smoother but
+    # can make the controller slow to react.
+    max_accel_x: 0.60
+    max_accel_y: 0.60
+    max_accel_w: 1.20
+    max_gamma_accel: 0.80
+
+    # Q-like tracking weights.
+    #
+    # q_contour penalizes lateral deviation from the path normal. Increase it if
+    # the robot cuts corners or drifts away from the curve.
+    #
+    # q_lag penalizes longitudinal error along the path tangent. Keep it lower
+    # than q_contour for MPCC-style behavior, otherwise the controller behaves
+    # more like time/index tracking.
+    #
+    # q_yaw penalizes heading error. Increase when orientation matters; decrease
+    # if yaw oscillation dominates translation tracking.
+    #
+    # q_terminal_* weights apply at the end of the prediction horizon and help
+    # make the last predicted state align with the path.
+    #
+    # q_progress is a reward, not a penalty: higher values encourage larger
+    # gamma_dot and faster progression along the path. Too high can make the
+    # robot rush the path and increase tracking error.
+    q_contour: 20.0
+    q_lag: 2.0
+    q_yaw: 1.0
+    q_terminal_contour: 30.0
+    q_terminal_lag: 4.0
+    q_progress: 0.40
+
+    # R-like effort and smoothness weights.
+    #
+    # r_vx, r_vy, r_w, r_gamma_dot penalize absolute command effort.
+    # Increase them to make commands smaller; decrease them to allow more
+    # aggressive motion.
+    #
+    # r_delta_* penalize changes from the previous command. Increase them to
+    # reduce jitter and make commands smoother; decrease them if the controller
+    # reacts too slowly to path error.
+    r_vx: 0.15
+    r_vy: 0.15
+    r_w: 0.10
+    r_gamma_dot: 0.05
+    r_delta_vx: 0.50
+    r_delta_vy: 0.50
+    r_delta_w: 0.20
+    r_delta_gamma_dot: 0.10
+
+    # Deterministic optimizer grid resolution.
+    #
+    # Each cycle evaluates the Cartesian product of these sample counts. The
+    # default is 5^4 = 625 candidate controls, each rolled out for N steps.
+    # Increase carefully on hardware because CPU cost grows very quickly.
+    #
+    # If the controller feels coarse, try increasing one axis at a time instead
+    # of increasing all four together.
+    vx_samples: 5
+    vy_samples: 5
+    w_samples: 5
+    gamma_dot_samples: 5
