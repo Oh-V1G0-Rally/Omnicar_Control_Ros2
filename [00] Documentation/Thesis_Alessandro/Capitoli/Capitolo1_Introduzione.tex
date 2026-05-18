@@ -1,0 +1,22 @@
+\chapter{Introduction}
+\section{Problem Statement and Motivation}
+Modern industrial automation is increasingly moving towards flexible and autonomous systems. Within this framework, omnidirectional robots represent a significant advancement due to their ability to move in any direction without altering their orientation.
+
+This thesis documents the mechanical assembly, hardware architecture design, and implementation of nonlinear motion control algorithms for the \textbf{OMNICAR} platform. The robotic vehicle is designed to navigate autonomously within a workspace, optimizing both path planning and the associated control laws to ensure precision and efficiency.
+
+\section{Maneuverability and Constraints}
+Traditional differential drive robots face significant maneuverability challenges in confined industrial environments. This limitation stems from their mechanical design, which prevents the vehicle from moving sideways without first performing a rotation. 
+In robotics, this physical restriction is classified as a \textbf{non-holonomic constraint}. Mathematically, this occurs when the number of controllable degrees of freedom is lower than the total degrees of freedom of the workspace. Consequently, these robots cannot follow any arbitrary trajectory instantaneously, often requiring complex maneuvers to navigate. This project addresses these issues by utilizing the \textbf{OMNICAR} platform, which allows for fluid and omnidirectional motion.
+
+\section{Objectives and Contributions}
+The primary focus of this research to date has been the complete redesign and physical realization of the OMNICAR platform. The specific objectives achieved during the initial phases of this work are:
+
+\begin{itemize}
+    \item \textbf{Mechanical Redesign and Optimization:} Utilizing Autodesk Fusion to completely overhaul the robot's structure. This involved increasing the chassis dimensions and implementing advanced design features to enhance structural integrity, usability, and internal layout.
+    \item \textbf{Component Integration and Layout:} Designing custom mounts and optimized placements for the core hardware, including the Raspberry Pi 5, ESP32, LIDAR, Pi Camera, and MDD10A motor drivers, with a specific focus on sensor field-of-view and maintenance accessibility.
+    \item \textbf{Electrical System Design:} Developing a comprehensive wiring schematic to define signal routing and pin mapping for the ESP32 microcontroller, ensuring a stable interface between the low-level logic and power electronics. Implementing cable management system like Wago connectors, custom soldering and routing solutions, to improve accessibility to system components.
+    \item \textbf{Prototyping and Assembly:} Executing the 3D printing of structural components and the subsequent mechanical assembly of the two-layer chassis, integrating electronics.
+\end{itemize}
+
+Following the completion of the hardware phase, the next stages of this research will focus on the development of the real-time firmware, the implementation of control laws, and the final validation of the robot's navigation capabilities.
+Following the completion of the hardware phase, the next stages of this research will focus on the development of the real-time firmware, the implementation of control laws, and the final validation of the robot's navigation capabilities.

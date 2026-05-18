@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper,oneside]{report}
+
+% 1. Lingue e Codifica
+\usepackage[italian, english]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% 2. Pacchetti Base e Grafica
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{ifthen}
+\usepackage{graphicx}
+\usepackage{ifoddpage}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{comment}
+\usepackage{epigraph}
+\usepackage{lipsum}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{pdfpages} 
+\usepackage{dirtree}
+
+% 3. PACCHETTI PER IL CODICE (Stile Accademico Pulito)
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Definizione colori per stampa (high contrast)
+\definecolor{code_bg}{RGB}{250,250,250}      % Sfondo quasi bianco
+\definecolor{code_border}{RGB}{200,200,200}  % Bordo grigio chiaro
+\definecolor{code_keyword}{RGB}{0,0,255}     % Blu classico
+\definecolor{code_string}{RGB}{163,21,21}    % Rosso scuro
+\definecolor{code_comment}{RGB}{0,128,0}     % Verde commento
+\definecolor{code_numbers}{RGB}{120,120,120} % Grigio per numeri riga
+
+% tcolorbox Monochrome
+\definecolor{print_bg}{gray}{0.98}      
+\definecolor{print_border}{gray}{0.3}  
+\definecolor{print_keyword}{gray}{0.0} 
+\definecolor{print_comment}{gray}{0.4} 
+\definecolor{print_string}{gray}{0.2}  
+\definecolor{print_numbers}{gray}{0.5} 
+
+\newtcblisting{vscode}[2][]{
+  enhanced,
+  arc=2pt,                          
+  boxrule=0.6pt,                    
+  colback=print_bg,                 
+  colframe=print_border,            
+  title={\texttt{#2}},              
+  coltitle=black,                   
+  colbacktitle=white,              
+  attach boxed title to top left={yshift=-2mm, xshift=2mm},
+  boxed title style={sharp corners, boxrule=0.6pt, colback=white},
+  fonttitle=\small\ttfamily,
+  top=4mm,                          
+  listing only,
+  listing options={
+    language=C++,
+    basicstyle=\small\ttfamily\color{black},
+    keywordstyle=\color{print_keyword}\bfseries, 
+    stringstyle=\color{print_string},           
+    commentstyle=\color{print_comment}\itshape, 
+    numbers=left,
+    numberstyle=\tiny\color{print_numbers},
+    stepnumber=1,
+    numbersep=10pt,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=2,
+    captionpos=b                  
+  },
+  #1
+}
+\newtcolorbox{folderbox}[2][]{
+  enhanced,
+  arc=2pt,
+  boxrule=0.6pt,
+  colback=code_bg,
+  colframe=code_border,
+  title={\texttt{#2}},
+  coltitle=black,
+  colbacktitle=code_border!30,
+  attach boxed title to top left={yshift=-2mm, xshift=2mm},
+  boxed title style={sharp corners, boxrule=0.5pt},
+  fonttitle=\small\ttfamily,
+  top=4mm,
+  #1
+}
+
+% 4. Altri caricamenti
+\usepackage{preambolo} 
+\addbibresource{biblio.bib} 
+
+\setcounter{tocdepth}{1}
+\let\cleardoublepage\clearpage
+
+\begin{document}
+
+\selectlanguage{english}
+
+\pagenumbering{roman}
+\includepdf[pages=-]{Frontespizio_TM.pdf} 
+
+\tableofcontents 
+\newpage
+
+\pagenumbering{arabic}
+
+% ESEMPIO DI UTILIZZO (Ora molto più sobrio)
+% \begin{vscode}{main.cpp}
+% #include <iostream>
+% // Questo è un commento accademico
+% int main() {
+%     std::cout << "Stile Tesi Pulito" << std::endl;
+%     return 0;
+% }
+% \end{vscode}
+
+\input{Capitoli/Capitolo1_Introduzione}
+\input{Capitoli/Capitolo2_Hardware_Design}
+\input{Capitoli/Capitolo3_Assembly}
+\input{Capitoli/Capitolo4_Firmware_Development_and_Experimental_Validation} 
+\input{Capitoli/Capitolo5_ROS} 
+\input{Capitoli/Capitolo6_Motion_Control_Design}
+
+\newpage
+\printbibliography[heading=bibintoc]
+
+\end{document}

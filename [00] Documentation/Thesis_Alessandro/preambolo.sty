@@ -1,0 +1,53 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} 
+\usepackage[english,italian]{babel}
+
+\usepackage{geometry}           % impostazione generale di pagina
+\usepackage{emptypage}          % per lasciare bianche le pagine senza testo
+\usepackage[babel]{csquotes}    % per la bibliografia
+\usepackage{biblatex}           % per la bibliografia
+\usepackage{lipsum}             % inserire lorem ipsum \lipsum[]
+\usepackage{caption}            % per le didascalie
+\usepackage{booktabs}           % per le tabelle
+\usepackage{pdfpages}           % inserire pdf esterni
+\usepackage{siunitx}            % unità di misura del SI
+\usepackage{hyperref} % collegamenti ipertestuali e segnalibri
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstdefinestyle{android}{
+    language=Java,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!10},
+    tabsize=2,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true
+}
+
+
+\sisetup{separate-uncertainty}
+\hypersetup{hidelinks}
+\urlstyle{same}
+
+
+% questo nuovo comando \pic serve per inserire le immagini velocemente
+% \pic{ nome (senza estensione) }{ posizione }{ dimensione (altezza in centimetri) }{ didascalia }
+% posizione: t in cima, b in fondo, p in pagina a parte, H esattamente qui, h circa qui
+% per fare riferimenti all'immagine usare il nome del file (senza estensione)
+\newcommand{\pic}[4]{
+    \begin{figure}[#2]
+        \begin{center}
+            \includegraphics[height={#3}cm]{#1}
+            \caption{#4}
+            \label{fig:#1}
+        \end{center}
+    \end{figure}
+}
