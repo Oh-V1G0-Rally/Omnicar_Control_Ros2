@@ -1,0 +1,15 @@
+analysis_timestamp: '2026-05-18T10:51:13'
+config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/analysis_config.yaml
+map_config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/map_feup_180x120.yaml
+debug_topic: /omnicar/path_follower_debug
+selected_tests:
+- PF_2026-04-29_INFIN_MAP_LINEAR_V01_R10
+- PF_2026-05-11_INFIN_MAP_MPCC_V01_R06
+source_folders:
+- /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R10
+- /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-05-11_INFIN_MAP_MPCC_V01_R06
+outputs:
+  map_xp: figures/map_xp.png
+  metrics_bars: figures/comparison_metrics.png
+  comparison_csv: tables/comparison_metrics.csv
+  recommendation: recommendation.md
