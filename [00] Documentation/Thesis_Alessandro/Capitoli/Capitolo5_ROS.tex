@@ -1,56 +1,29 @@
-\chapter{ROS Integration and High-Level Software Architecture}
+\chapter{Omnicar Platform, ROS Integration and High-Level Software Architecture }
 
   \section{High-Level Software Architecture: From ROS1 Noetic to ROS2 Jazzy}
-  In the previous stages of the OmniCar project, the high-level software
-  architecture was based on \textbf{ROS1 Noetic}. In the current work, the
-  platform is being migrated to \textbf{ROS2 Jazzy}, with the goal of building a
-  more robust, modular, and maintainable.
+  In this thesis, the previous ROS1-based architecture was progressively migrated to ROS2 Jazzy.
+  The objective wasn't to update the software stack, but also to obtain a structure that could be tested more easily, extended with new modules, and maintained on the Raspberry Pi 5.
 
-  This migration represents an important evolution of the project. ROS2 offers
-  several advantages compared to ROS1. First, it uses a DDS-based communication
-  layer, which provides more reliable and flexible data exchange between nodes.
-  Second, ROS2 improves modularity and scalability, making it easier to manage
-  distributed robotic systems that include multiple sensors, control nodes, and
-  processing pipelines. Third, ROS2 is better suited for future development, since
-  it is the actively supported generation of the ROS ecosystem, while ROS1 has
-  reached the end of its lifecycle.
+  The transition to ROS2 was particularly relevant for this platform because the high-level software has to coordinate several modules: the serial driver, the odometry node, the localization pipeline, the lidar interface, and the motion-control nodes. In this context, the \textbf{Data Distribution Service} based communication layer of ROS2 provides a more suitable basis for distributed execution and future extensions than the previous centralized \textbf{ROS Master}.
 
-  The migration also made it possible to adopt a \textbf{Raspberry Pi 5} as the
-  onboard computer of the platform. Compared to the \textbf{Raspberry Pi 3} used
-  in the previous implementation, the Raspberry Pi 5 provides higher computational
-  power, better memory performance, and a more suitable hardware platform for the
-  execution of a modern ROS2-based architecture. This improvement is particularly relevant for tasks such as odometric computation, localization, lidar, and operations where more computational computation is required
-
-  To manage the kinematics of the omnidirectional robot, process sensor data, and
-  supervise high-level control operations, the \textbf{ROS (Robot Operating
-  System)} framework was adopted as middleware. ROS enables hardware abstraction
-  and communication between software modules through a \textit{publish-subscribe}
-  model. In this architecture, independent nodes exchange data through topics and
-  services, without direct knowledge of each other's internal implementation. This
-  approach ensures a decoupled, flexible, and modular system design.
+  The hardware upgrade to the \textbf{Raspberry Pi 5} was also an important part of the migration. Compared with the \textbf{Raspberry Pi 3} used in the previous version, the new board offers more computational margin for running several ROS2 nodes at the same time. This is especially useful for odometry computation, localization, lidar data processing, and high-level control tasks, where delays or CPU saturation can directly affect the quality of the robot behaviour.
 
   \subsection{Migration and Local Implementation}
-  The migration from ROS1 Noetic to ROS2 Jazzy was motivated by both architectural
-  and practical reasons. From the software point of view, ROS2 provides better
-  communication reliability, improved maintainability, and a more modern
-  development environment. From the hardware point of view, the migration allows
-  the software stack to fully exploit the improved capabilities of the Raspberry
-  Pi 5.
+  From a practical point of view, the migration required rebuilding the software stack around the ROS2 workflow and checking each module separately before running the complete robot. This was necessary because the driver, odometry, localization, and control nodes depend on each other, but failures in one layer can easily mask problems in the others.
 
-  The ROS2 environment was implemented inside a dedicated local \textit{workspace}
-  on the Raspberry Pi. This choice was made for the following reasons:
+  During the migration, I chose to keep the project inside a dedicated ROS2 workspace on the Raspberry Pi instead of mixing the packages with system-level software. This made the development process easier to control, especially when rebuilding packages, changing configuration files, or testing only a subset of the nodes.
 
   \begin{itemize}
       \item \textbf{Dependency Isolation}: A local workspace allows better control
   of project-specific dependencies and reduces conflicts with system-wide
   libraries and packages.
-      \item \textbf{Modularity}: The workspace structure helps organize drivers,
+      \item \textbf{Package organization}: The workspace structure helps organize drivers,
   interfaces, launch files, and configuration files in a clear and maintainable
   way.
-      \item \textbf{Portability}: The complete software stack can be deployed more
+      \item \textbf{Reproducibility}: The complete software can be deployed more
   easily on different Raspberry Pi boards while preserving the same internal
   package organization.
-      \item \textbf{Scalability}: ROS2 makes future extensions easier, such as
+      \item \textbf{Future Extensions}: ROS2 makes future extensions easier, such as
   improved localization, additional sensors, and more advanced control features.
   \end{itemize}
 
@@ -66,15 +39,10 @@
       \item the verification of topic names, node names, parameter files, and TF
   frame conventions;
       \item the preservation of compatibility with the serial protocol used by the
-  ESP32 firmware;
-      \item the progressive migration of the main functional modules, including
-  driver, joystick, odometry, localization, and lidar.
+  ESP32 firmware.
   \end{itemize}
 
-  For these reasons, the migration had to be performed progressively. The first
-  priority was the consolidation of the ROS2 driver compatible with the embedded
-  firmware. After that, the other software modules could be migrated and
-  integrated one by one.
+  For this reason, the migration was performed progressively. I first focused on the ROS2 driver, because it represented the mandatory bridge between the Raspberry Pi and the ESP32 firmware. Once this communication layer was stable, the remaining modules could be migrated and tested one at a time.
 
   \subsection{Workspace Structure}
   The active ROS2 workspace of the project is \texttt{omnicar\_ws}. It follows the
@@ -84,10 +52,7 @@
   environment, while the \texttt{src/} directory contains the software packages
   under development.
 
-  Within each package, the \texttt{CMakeLists.txt} and \texttt{package.xml} files
-  remain fundamental. The \texttt{CMakeLists.txt} file defines the compilation
-  rules, executable targets, and library linking, while the \texttt{package.xml}
-  file describes the package metadata and declares the required dependencies.
+  Each package keeps the standard ROS2 files, namely \texttt{CMakeLists.txt} and \texttt{package.xml}, which define the build targets, dependencies, and package metadata.
 
   The separation between header files (\texttt{.h}) and source files
   (\texttt{.cpp}) remains important for code organization and maintainability.
@@ -156,17 +121,13 @@
 
 
  \subsection{Experimental Validation: ROS2 Integration and Control Chain}
-  The final phase of the software integration focused on validating the
+  This phase of the software integration focused on validating the
   communication and control chain of the OmniCar platform in the ROS2 environment.
   These tests were intended to verify the correctness of serial communication with
-  the ESP32 controller, the consistency of encoder feedback, and the proper
-  integration of teleoperation, odometry, and localization modules inside the
-  migrated ROS2 architecture.
+  the ESP32 controller, the consistency of encoder feedback, joystick commands, odometry, and localization modules inside the migrated ROS2 architecture.
 
   \subsubsection{Test 1: Encoder Monitoring and Open-Loop Velocity Control}
-  The first experimental test was designed to validate the behaviour of the main
-  ROS2 driver and the correctness of the encoder data received from the embedded
-  controller.
+  The first test was intentionally simple, because before testing odometry or control it was necessary to verify that the Raspberry Pi could receive reliable encoder data from the ESP32.
 
   \paragraph{Operational Procedure}
   After enabling access to the serial device, the main driver node,
@@ -175,15 +136,17 @@
   current implementation, it subscribes to the \texttt{motors\_ref} topic and
   publishes encoder and digital state feedback through the topics
   \texttt{motors\_enc}, \texttt{switch\_1\_state}, and \texttt{switch\_2\_state}.
-  It also exposes the services \texttt{set\_solenoid\_1\_state} and
-  \texttt{set\_solenoid\_2\_state}.
-
+  
+  \vspace{0.2cm}
+  
   To validate the feedback chain, the \texttt{motors\_enc} topic was monitored
   during runtime while the wheels were rotated manually. This check confirmed the
   correct reception of encoder increments, the absence of packet loss, and the
   correct transmission of angular speed and ticks-per-revolution information from
   the embedded layer to ROS2.
 
+  \vspace{0.2cm}
+  
   For actuation validation, a constant reference was sent on the
   \texttt{motors\_ref} topic using the custom message type
   \texttt{sdpo\_drivers\_interfaces/msg/MotRefArray}. In this way, it was possible
@@ -201,8 +164,20 @@
     \label{fig:rqt_graph_test_Encoder}
 \end{figure}
 
-  \subsubsection{Test 2: Teleoperation via Joystick Control}
-  The second validation phase concerned the integration of joystick teleoperation
+\begin{vscode}{Commands to use for Test 1}
+CMD1  
+  ros2 launch sdpo_ratf_driver sdpo_ratf_driver.launch.py
+
+CMD2
+  ros2 topic echo /unnamed_robot/motors_enc
+
+CMD3
+  ros2 topic pub -r 20 /unnamed_robot/motors_ref sdpo_drivers_interfaces/msg/MotRefArray "{ang_speed_ref: [{ref: 5.0}, {ref: 5.0}, {ref: 5.0}, {ref:5.0}]}"
+  ros2 topic pub -r 20 /unnamed_robot/motors_ref sdpo_drivers_interfaces/msg/MotRefArray "{ang_speed_ref: [{ref: 0.0}, {ref: 0.0}, {ref: 0.0}, {ref:0.0}]}"
+\end{vscode}
+
+  \subsubsection{Test 2: Manual Control using a Joystick Controller}
+  The second validation phase concerned the integration of a joystick controller
   in the ROS2 environment, with the aim of verifying manual control of the
   platform and the correct interaction between high-level user commands and low-
   level motor actuation.
@@ -229,10 +204,7 @@
   \texttt{motors\_ref} message and transmits the corresponding angular speed
   references to the ESP32 firmware through the serial communication protocol.
 
-  This result is important from an architectural point of view, because it shows
-  that the migrated ROS2 control chain is modular and well separated into
-  functional layers. The joystick node manages the user input, the kinematic
-  conversion node computes the wheel references, and the main driver handles
+  This result is important, because it shows that the migrated ROS2 control chain is modular and separated into functional layers. The joystick node manages the user input, the kinematic conversion node computes the wheel references, and the main driver handles
   communication with the embedded controller. This separation improves clarity,
   maintainability, and testability of the overall system.
 
@@ -243,26 +215,21 @@
     \label{fig:rqt_graph_test_joy}
 \end{figure}
 
-The comparison between the real experiment and the RViz visualization shows that the odometry provides a consistent estimate of the robot motion. The trajectory and frame alignment are coherent, while small differences are due to odometric drift, wheel slip, and modeling errors.
+\begin{vscode}{Commands to use for Test 2}
+CMD 1
+ros2 launch sdpo_ratf_driver omnicar_joy_control.launch.py
 
- \begin{figure}[H]
-    \centering
-    \begin{minipage}[b]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{IMG/ROS/rviz2_odom_edit.png}
-        \caption*{RViz odometry and TF visualization}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{IMG/ROS/odom_real_edit.jpg}
-        \caption*{Real experimental setup}
-    \end{minipage}
-    \caption{Comparison between the real robot experiment and the corresponding odometry visualization in RViz.}
-    \label{fig:odom_comparison}
-\end{figure}
+CMD 2
+ros2 topic echo /unnamed_robot/odom
+\end{vscode}
 
-  \subsubsection{Test 4: Localization and Lidar Integration}
+\vspace{0.4cm}
+
+  \subsubsection{Test 3: Localization and Lidar Integration}
+  After validating the joystick teleoperation chain, the next step was to verify that the odometry node produced a coherent estimate of the robot motion. The robot was moved manually or through joystick commands while the estimated pose and TF frames were observed in RViz. The comparison with the real motion showed that the direction of motion and frame alignment were consistent, although small discrepancies appeared due to wheel slip, odometric drift, and modelling errors.
+
+  \vspace{0.2cm}
+  
   The localization function is managed by the node
   \texttt{sdpo\_ratf\_ros\_localization}, which subscribes to \texttt{odom} and,
   when enabled, also to \texttt{laser\_scan\_point\_cloud}. It publishes the
@@ -271,46 +238,67 @@ The comparison between the real experiment and the RViz visualization shows that
   Moreover, it broadcasts the TF transform between the frames \texttt{map} and
   \texttt{odom}.
 
+\vspace{0.2cm}
+
   This architecture allows localization to refine the odometric estimate by
   combining wheel-based motion prediction with external observations derived from
-  the lidar subsystem. (TODO, possibile argomento extra sulla sensor fusion e del ExtendedKalmanFilter filter, non sviluppato da me)
-
+  the lidar subsystem.
   The localization process can be observed in Fig.~\ref{fig:odom_comparison}, where the RViz visualization shows the lidar scan in red and the detected beacons in white, providing a direct representation of the perception layer used for pose estimation.
 
-The TF tree adopted in this configuration follows the standard chain \texttt{map} $\rightarrow$ \texttt{odom} $\rightarrow$ \texttt{base\_footprint} $\rightarrow$ \texttt{laser}. In this structure, the \texttt{map} frame represents the global reference, \texttt{odom} provides a continuous but drifting local estimate, \texttt{base\_footprint} defines the robot base frame, and \texttt{laser} corresponds to the lidar sensor frame. This hierarchical organization ensures consistency between localization, odometry, and sensor measurements.
+\vspace{0.2cm}
+
+  The TF tree adopted in this configuration follows the standard chain \newline 
+  \texttt{map} $\rightarrow$ \texttt{odom} $\rightarrow$ \texttt{base\_footprint} $\rightarrow$ \texttt{laser}.
+  
+   \newline  
+   
+  In this structure, the \texttt{map} frame represents the global reference, \texttt{odom} provides a continuous but drifting local estimate, \texttt{base\_footprint} defines the robot base frame, and \texttt{laser} corresponds to the lidar sensor frame. This hierarchical organization ensures consistency between localization, odometry, and sensor measurements.
+
+\vspace{0.2cm}
 
   The lidar integration is provided by the package \texttt{ldlidar\_stl\_ros},
   which publishes scan data for the perception layer. In the current migration
   process, the lidar is an important component because it supports the
   localization pipeline and extends the ROS2 stack beyond basic low-level control.
 
+  The comparison between the real experiment and the RViz visualization shows that the odometry provides a consistent estimate of the robot motion. The trajectory and frame alignment are coherent, while small differences are due to odometric drift, wheel slip, and modeling errors.
+  For the following Test, the same laucher used in the previous test is valid.
+
+ \begin{figure}[H]
+    \centering
+
+    \includegraphics[width=0.90\linewidth]{IMG/ROS/rviz2_odom_edit.png}
+    \caption*{RViz odometry and TF visualization}
+
+    \vspace{0.4cm}
+
+    \includegraphics[width=0.90\linewidth]{IMG/ROS/odom_real_edit.jpg}
+    \caption*{Real experimental setup}
+
+    \caption{Comparison between the real robot experiment and the corresponding odometry visualization in RViz.}
+    \label{fig:odom_comparison}
+\end{figure}
+
 
 \newpage
-\subsubsection{Test 5: Waypoint Tracking Validation with the
+\subsubsection{Test 4: Waypoint Tracking Validation with the
   \texttt{go\_to\_point} Controller}
 
-  This is the first closed-loop
-  high-level motion control test in the ROS2 architecture. In this phase, the
-  package \texttt{sdpo\_motion\_control} was used to command the robot toward a
-  sequence of planar target poses, with the objective of evaluating the
-  behaviour
-  of the \texttt{go\_to\_point} controller, the consistency of the odometric
-  feedback, and the overall quality of the integrated control chain.
+  This test represented the first closed-loop high-level motion-control experiment performed within the migrated ROS2 architecture. In this phase, the package \texttt{sdpo\_motion\_control} was used to command the robot toward a
+  sequence of planar target poses, with the objective of evaluating the behaviour of the \texttt{go\_to\_point} controller, the consistency of the odometric feedback, and the overall quality of the integrated control chain.
+
+\vspace{0.4cm}
 
   This test was carried out after correcting an inconsistency in the
   \texttt{map}--\texttt{odom} transformation inside the localization chain. In
-  the
-  previous implementation, the rotation between \texttt{map} and \texttt{odom}
-  was
-  computed correctly, but the translation term was combined with the robot EKF
-  yaw
-  instead of the relative \texttt{map}--\texttt{odom} rotation. This produced a
-  frame inconsistency. After this correction, the waypoint experiments
-  became coherent and repeatable.
+  the previous implementation, the rotation between \texttt{map} and \texttt{odom}
+  was computed correctly, but the translation term was combined with the robot EKF
+  yaw instead of the relative \texttt{map}--\texttt{odom} rotation. This produced a
+  frame inconsistency. After this correction, the waypoint experiments became coherent and repeatable.
 
   \paragraph{Test configuration}
-  For controller tuning and validation, five reference poses were assigned in
-  sequence. The same five target positions are the ones shown in the plots of
+  For controller tuning and validation, six reference poses were assigned in
+  sequence. The same six target positions are the ones shown in the plots of
   target trajectory, current robot trajectory, and tracking errors:
   
 \begin{figure}[H]
@@ -329,10 +317,7 @@ The TF tree adopted in this configuration follows the standard chain \texttt{map
   \item \texttt{(P5) \{x: 0.0, y: 0.0, z: 0.0\}}
 \end{itemize}
 
-  These references were chosen to test both pure translations and combined
-  translation-rotation motions over a significant portion of the available
-  working
-  area, ending with a return to the origin.
+    The sequence was chosen to force the robot to move in different directions of the workspace, including diagonal displacements where odometric errors and wheel slip are more visible, ending with a return to the origin.
 
   \paragraph{Observed behaviour}
   The experiments showed that the \texttt{go\_to\_point} controller is able to
@@ -342,30 +327,25 @@ The TF tree adopted in this configuration follows the standard chain \texttt{map
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{IMG/ROS/TEST5_position.png}
+    \includegraphics[width=1.0\textwidth]{IMG/ROS/TEST4_position.png}
     \caption{plot control position results}
-    \label{fig:TEST5_position}
+    \label{fig:TEST4_position}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{IMG/ROS/TEST5_position_error.png}
+    \includegraphics[width=1.0\textwidth]{IMG/ROS/TEST4_position_error.png}
     \caption{plot position errors}
-    \label{fig:TEST5_position_error}
+    \label{fig:TEST4_position_error}
 \end{figure}
 
-  The comparison between the commanded target pose and the estimated current
-  pose,
-  together with the plots of the tracking error, highlighted that the control
-  loop
-  remained stable during all five tests, but also confirmed the presence of a
-  residual positioning error. In the experimental trials, the maximum observed
-  deviation with respect to the real robot position was approximately a few
-  centimetres, with worst cases on the order of about \(2 \ \mathrm{cm}\) on each
+  The comparison between the commanded target pose and the estimated current pose,
+  together with the plots of the tracking error, highlighted that the control loop
+  remained stable during all tests, but also confirmed the presence of a
+  residual positioning error. Over the waypoint sequence, the largest observed deviation was on the order of \(2 \ \mathrm{cm}\) on each
   axis. This discrepancy was not mainly associated with instability of the
   controller itself, but rather with the accumulated estimation error of the
-  pose
-  used by the controller.
+  pose used by the controller.
 
   The results were particularly useful because they helped separate the effect
   of
@@ -385,18 +365,14 @@ The TF tree adopted in this configuration follows the standard chain \texttt{map
   was able to execute repeated planar repositioning tasks using the new
   \texttt{sdpo\_motion\_control} package, and the obtained behaviour is already
   sufficient to consider the controller as a valid baseline for further tuning
-  and
-  for future trajectory-tracking developments.
+  and for future trajectory-tracking developments.
 
   At the same time, the tests showed that improved precision will require not
-  only
-  controller tuning, but also a more accurate calibration of the localization
-  and
-  odometry chain, especially for diagonal motions and global return-to-origin
-  tasks. For this reason, Test~5 was an important milestone: it validated the
+  only controller tuning, but also a more accurate calibration of the localization
+  and odometry chain, especially for diagonal motions and global return-to-origin
+  tasks. For this reason, Test~4 was an important milestone: it validated the
   complete waypoint control loop in ROS2 and clearly identified the remaining
-  gap
-  between acceptable closed-loop operation and higher-accuracy autonomous
+  gap between acceptable closed-loop operation and higher-accuracy autonomous
   navigation.
 
   \subsection{Final Considerations on the Integrated ROS2 Chain}
@@ -408,7 +384,7 @@ At the embedded level, the ESP32 firmware implements the low-level wheel-velocit
     \centering
     \includegraphics[width=1.0\textwidth]{IMG/controller/controller_general_architecture.png}
     \caption{Controller Architecture}
-    \label{fig:Control Architecture}
+    \label{fig:Control_Architecture}
 \end{figure}
 
 Motion-control architecture adopted for OMNICAR as a two-layer cascade, consistent with the firmware and ROS2 integration described in the previous chapters.
@@ -421,7 +397,7 @@ Motion-control architecture adopted for OMNICAR as a two-layer cascade, consiste
 
 This architecture, shown in Fig.~\ref{fig:Control Architecture}, provides a clear separation of responsibilities: high-level motion generation in ROS2 and fast embedded actuation at firmware level. In the present chapter, the high-level scenario is limited to a \texttt{go\_to\_point} task with a P-only outer loop.
 
-In the ROS2 experiments presented in Test~5, the high-level outer loop was intentionally kept simple and implemented as a \textbf{P-only controller} on the planar coordinates \((x,y,\psi)\). Three proportional actions were used to generate the commanded robot velocities from position and heading errors, while integral and derivative terms were disabled in this phase.
+In the ROS2 experiments presented in Test~4, the high-level outer loop was intentionally kept simple and implemented as a \textbf{P-only controller} on the planar coordinates \((x,y,\psi)\). Three proportional actions were used to generate the commanded robot velocities from position and heading errors, while integral and derivative terms were disabled in this phase.
 
 The tuning was performed progressively by starting from moderate proportional gains (around \(K_p \approx 0.8\), then adjusted per axis) and increasing them until a satisfactory compromise between responsiveness and oscillation margin was obtained. This approach was chosen to obtain a robust baseline controller and to isolate the effect of the localization and odometry chain on the final positioning performance.
 
@@ -431,3 +407,4 @@ This test should therefore be interpreted as the first high-level control scenar
 
 
   
+
