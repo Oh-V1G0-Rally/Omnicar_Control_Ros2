@@ -1,0 +1,52 @@
+analysis_timestamp: '2026-05-19T18:47:22'
+config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/analysis_config.yaml
+map_config_file: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_code/config/map_feup_180x120.yaml
+debug_topic: /omnicar/path_follower_debug
+comparison_policy: three_pairwise_common_segments
+selected_tests:
+  LIN-04: PF_2026-04-29_INFIN_MAP_LINEAR_V01_R08
+  LIN-05: PF_2026-04-29_INFIN_MAP_LINEAR_V01_R10
+  MPC-05: PF_2026-05-11_INFIN_MAP_MPCC_V01_R05
+  MPC-06: PF_2026-05-11_INFIN_MAP_MPCC_V01_R06
+result_folders:
+  LIN-04: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R08
+  LIN-05: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R10
+  MPC-05: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-05-11_INFIN_MAP_MPCC_V01_R05
+  MPC-06: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/Test/test_results/PF_2026-05-11_INFIN_MAP_MPCC_V01_R06
+bag_folders:
+  LIN-04: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/bags/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R08
+  LIN-05: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/bags/PF_2026-04-29_INFIN_MAP_LINEAR_V01_R10
+  MPC-05: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/bags/PF_2026-05-11_INFIN_MAP_MPCC_V01_R05
+  MPC-06: /home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/bags/PF_2026-05-11_INFIN_MAP_MPCC_V01_R06
+comparisons:
+- comparison_id: linear_segment
+  comparison: Linear Segment
+  runs:
+  - LIN-04
+  - LIN-05
+  common_segment_length_m: 4.537338964058028
+  common_gamma_start_m: 0.0147988110616252
+  common_gamma_end_m: 4.552137775119653
+  figure: figures/compare_LIN04_LIN05.png
+- comparison_id: mpcc
+  comparison: MPCC
+  runs:
+  - MPC-05
+  - MPC-06
+  common_segment_length_m: 4.533781316405578
+  common_gamma_start_m: 0.0158125036689934
+  common_gamma_end_m: 4.549593820074571
+  figure: figures/compare_MPC05_MPC06.png
+- comparison_id: linear_vs_mpcc
+  comparison: Linear Segment vs MPCC
+  runs:
+  - LIN-05
+  - MPC-06
+  common_segment_length_m: 4.533781316405578
+  common_gamma_start_m: 0.0158125036689934
+  common_gamma_end_m: 4.549593820074571
+  figure: figures/compare_LIN05_MPC06.png
+outputs:
+  final_csv: tables/final_common_segment_table.csv
+  final_json: tables/final_common_segment_table.json
+  final_latex: tables/final_common_segment_table.tex

@@ -26,6 +26,18 @@ from extract_debug_to_csv import extract_debug_dataframe
 
 DEFAULT_CONFIG = Path(__file__).resolve().parents[1] / "config" / "analysis_config.yaml"
 DEFAULT_RESULTS_ROOT = Path(__file__).resolve().parents[2] / "test_results"
+DEFAULT_BAGS_ROOT = Path(__file__).resolve().parents[3] / "bags"
+FINAL_TESTS = {
+    "LIN-04": "PF_2026-04-29_INFIN_MAP_LINEAR_V01_R08",
+    "LIN-05": "PF_2026-04-29_INFIN_MAP_LINEAR_V01_R10",
+    "MPC-05": "PF_2026-05-11_INFIN_MAP_MPCC_V01_R05",
+    "MPC-06": "PF_2026-05-11_INFIN_MAP_MPCC_V01_R06",
+}
+FINAL_COMPARISONS = [
+    ("linear_segment", "Linear Segment", ["LIN-04", "LIN-05"]),
+    ("mpcc", "MPCC", ["MPC-05", "MPC-06"]),
+    ("linear_vs_mpcc", "Linear Segment vs MPCC", ["LIN-05", "MPC-06"]),
+]
 REQUIRED_METRIC_KEYS = {
     "duration_s",
     "gamma_progress_ratio",
@@ -56,15 +68,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--tests",
-        nargs="+",
-        required=True,
+        nargs="*",
+        default=[],
         help=(
             "Test folders or test IDs. Each item can be an analyzed result folder, "
-            "a bag folder, or a test ID resolved under --results-root/--bags-root."
+            "a bag folder, or a test ID resolved under --results-root/--bags-root. "
+            "If omitted, the thesis final common-segment preset is used."
         ),
     )
     parser.add_argument("--results-root", default=str(DEFAULT_RESULTS_ROOT), help="Root folder with analyzed tests")
-    parser.add_argument("--bags-root", help="Optional root folder with raw bag test directories")
+    parser.add_argument("--bags-root", default=str(DEFAULT_BAGS_ROOT), help="Root folder with raw bag test directories")
     parser.add_argument("--path-file", help="Reference path CSV. Required when comparing raw bag folders")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="Analysis configuration YAML")
     parser.add_argument("--map-config", help="Optional map YAML overriding the one in analysis config")
@@ -240,6 +253,15 @@ def load_test_entry(
     }
 
 
+def clone_entry_for_comparison(entry: dict[str, Any], short_name: str) -> dict[str, Any]:
+    cloned = entry.copy()
+    cloned["short_name"] = short_name
+    cloned["table_run"] = short_name
+    cloned["metadata"] = entry["metadata"].copy()
+    cloned["metadata"]["short_name"] = short_name
+    return cloned
+
+
 def numeric(value: Any) -> float:
     try:
         result = float(value)
@@ -376,6 +398,7 @@ def build_comparison_rows(entries: list[dict[str, Any]]) -> list[dict[str, Any]]
     for entry in entries:
         row = {
             "test_id": entry["metadata"].get("test_id", entry["test_id"]),
+            "run": entry.get("table_run", entry["metadata"].get("short_name", entry["test_id"])),
             "date": entry["metadata"].get("date", ""),
             "path_name": entry["metadata"].get("path_name", ""),
             "frame": entry["metadata"].get("frame", ""),
@@ -391,6 +414,60 @@ def build_comparison_rows(entries: list[dict[str, Any]]) -> list[dict[str, Any]]
         }
         rows.append(row)
     return rows
+
+
+def build_final_table_row(comparison_id: str, comparison_label: str, row: dict[str, Any]) -> dict[str, Any]:
+    metrics_segment = numeric(row.get("common_segment_length_m"))
+    metrics_duration = numeric(row.get("duration_common_s"))
+    return {
+        "comparison_id": comparison_id,
+        "comparison": comparison_label,
+        "run": row.get("run", row.get("test_id", "")),
+        "test_id": row.get("test_id", ""),
+        "common_segment_m": metrics_segment,
+        "duration_s": metrics_duration,
+        "rmse_ec_m": numeric(row.get("rmse_contouring_m")),
+        "mae_ec_m": numeric(row.get("mae_contouring_m")),
+        "max_abs_ec_m": numeric(row.get("max_abs_contouring_m")),
+        "rmse_el_m": numeric(row.get("rmse_lag_m")),
+        "mae_el_m": numeric(row.get("mae_lag_m")),
+        "samples": int(row.get("samples_common", 0)),
+        "gamma_start_m": numeric(row.get("common_gamma_start_m")),
+        "gamma_end_m": numeric(row.get("common_gamma_end_m")),
+    }
+
+
+def write_latex_table(rows: list[dict[str, Any]], output_path: Path) -> None:
+    lines = [
+        r"\begin{tabular}{lccccccc}",
+        r"\toprule",
+        r"\textbf{Run} &",
+        r"\shortstack{\textbf{Common}\\\textbf{segment [m]}} &",
+        r"\textbf{Duration [s]} &",
+        r"\(\mathrm{RMSE}_{e_c}\) [m] &",
+        r"\(\mathrm{MAE}_{e_c}\) [m] &",
+        r"\(\max |e_c|\) [m] &",
+        r"\(\mathrm{RMSE}_{e_l}\) [m] &",
+        r"\(\mathrm{MAE}_{e_l}\) [m] \\",
+        r"\midrule",
+    ]
+    previous_comparison = None
+    for row in rows:
+        if previous_comparison is not None and row["comparison_id"] != previous_comparison:
+            lines.append(r"\midrule")
+        previous_comparison = row["comparison_id"]
+        lines.append(
+            f"{row['run']} & "
+            f"{row['common_segment_m']:.3f} & "
+            f"{row['duration_s']:.2f} & "
+            f"{row['rmse_ec_m']:.4f} & "
+            f"{row['mae_ec_m']:.4f} & "
+            f"{row['max_abs_ec_m']:.4f} & "
+            f"{row['rmse_el_m']:.4f} & "
+            f"{row['mae_el_m']:.4f} \\\\"
+        )
+    lines.extend([r"\bottomrule", r"\end{tabular}"])
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def assign_colors(entries: list[dict[str, Any]]) -> dict[str, str]:
@@ -596,6 +673,113 @@ def write_recommendation(rows: list[dict[str, Any]], output_path: Path) -> None:
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def run_final_common_segment_preset(
+    results_root: Path,
+    bags_root: Path | None,
+    config_path: Path,
+    map_path: Path,
+    map_cfg: dict[str, Any],
+    debug_topic: str,
+    fallback_path_reference: pd.DataFrame | None,
+    output_dir: Path,
+    force: bool,
+) -> None:
+    selected_paths = {
+        short_name: resolve_existing_path(test_id, results_root, bags_root)
+        for short_name, test_id in FINAL_TESTS.items()
+    }
+    entries_by_short_name = {
+        short_name: load_test_entry(path, debug_topic, fallback_path_reference)
+        for short_name, path in selected_paths.items()
+    }
+
+    path_reference = fallback_path_reference
+    if path_reference is None:
+        for entry in entries_by_short_name.values():
+            if not entry["path_reference"].empty:
+                path_reference = entry["path_reference"]
+                break
+    if path_reference is None:
+        path_reference = pd.DataFrame()
+
+    if output_dir.exists() and any(output_dir.iterdir()) and not force:
+        raise FileExistsError(f"Output folder '{output_dir}' is not empty. Use --force to reuse it.")
+    ensure_dir(output_dir)
+    figures_dir = ensure_dir(output_dir / "figures")
+    tables_dir = ensure_dir(output_dir / "tables")
+
+    final_rows: list[dict[str, Any]] = []
+    comparison_info: list[dict[str, Any]] = []
+
+    for comparison_id, comparison_label, short_names in FINAL_COMPARISONS:
+        entries = [
+            clone_entry_for_comparison(entries_by_short_name[short_name], short_name)
+            for short_name in short_names
+        ]
+        common_segment_length_m, path_reference_common = apply_common_segment(entries, path_reference)
+        rows = build_comparison_rows(entries)
+        final_rows.extend(build_final_table_row(comparison_id, comparison_label, row) for row in rows)
+
+        color_by_test = assign_colors(entries)
+        title = f"Common-segment comparison: {comparison_label}"
+        figure_stem = "compare_" + "_".join(short_names).replace("-", "")
+        plot_combined_comparison(
+            entries,
+            rows,
+            path_reference_common,
+            map_cfg,
+            figures_dir / f"{figure_stem}.png",
+            title,
+            "test_id",
+            color_by_test,
+        )
+        dataframe_to_csv(tables_dir / f"{comparison_id}_metrics.csv", pd.DataFrame(rows))
+        dump_json(tables_dir / f"{comparison_id}_metrics.json", {"tests": rows})
+        comparison_info.append(
+            {
+                "comparison_id": comparison_id,
+                "comparison": comparison_label,
+                "runs": short_names,
+                "common_segment_length_m": common_segment_length_m,
+                "common_gamma_start_m": entries[0]["common_gamma_start_m"],
+                "common_gamma_end_m": entries[0]["common_gamma_end_m"],
+                "figure": f"figures/{figure_stem}.png",
+            }
+        )
+
+    final_df = pd.DataFrame(final_rows)
+    dataframe_to_csv(tables_dir / "final_common_segment_table.csv", final_df)
+    dump_json(tables_dir / "final_common_segment_table.json", {"rows": final_rows})
+    write_latex_table(final_rows, tables_dir / "final_common_segment_table.tex")
+    dump_yaml(
+        output_dir / "comparison_info.yaml",
+        {
+            "analysis_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "config_file": str(config_path),
+            "map_config_file": str(map_path),
+            "debug_topic": debug_topic,
+            "comparison_policy": "three_pairwise_common_segments",
+            "selected_tests": FINAL_TESTS,
+            "result_folders": {key: str(value) for key, value in selected_paths.items()},
+            "bag_folders": {
+                key: entry["info"].get("input", {}).get("bag_folder", "")
+                for key, entry in entries_by_short_name.items()
+            },
+            "comparisons": comparison_info,
+            "outputs": {
+                "final_csv": "tables/final_common_segment_table.csv",
+                "final_json": "tables/final_common_segment_table.json",
+                "final_latex": "tables/final_common_segment_table.tex",
+            },
+        },
+    )
+
+    print(f"Wrote final common-segment comparison to: {output_dir}")
+    print(f"Final table: {tables_dir / 'final_common_segment_table.csv'}")
+    print("")
+    print(final_df.to_string(index=False, float_format=lambda value: f"{value:.6g}"))
+
+
 def main() -> None:
     args = parse_args()
     config_path = Path(args.config).expanduser().resolve()
@@ -608,6 +792,27 @@ def main() -> None:
     debug_topic = args.debug_topic or config["topics"]["debug_topic"]
 
     fallback_path_reference = load_path_reference(Path(args.path_file).expanduser().resolve()) if args.path_file else None
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = (
+        Path(args.output_dir).expanduser().resolve()
+        if args.output_dir
+        else results_root / "comparisons" / f"path_following_comparison_{timestamp}"
+    )
+
+    if not args.tests:
+        run_final_common_segment_preset(
+            results_root,
+            bags_root,
+            config_path,
+            map_path,
+            map_cfg,
+            debug_topic,
+            fallback_path_reference,
+            output_dir,
+            args.force,
+        )
+        return
+
     selected_paths = [resolve_existing_path(raw, results_root, bags_root) for raw in args.tests]
     entries = [load_test_entry(path, debug_topic, fallback_path_reference) for path in selected_paths]
 
@@ -622,12 +827,6 @@ def main() -> None:
 
     common_segment_length_m, path_reference_common = apply_common_segment(entries, path_reference)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = (
-        Path(args.output_dir).expanduser().resolve()
-        if args.output_dir
-        else results_root / "comparisons" / f"path_following_comparison_{timestamp}"
-    )
     if output_dir.exists() and any(output_dir.iterdir()) and not args.force:
         raise FileExistsError(f"Output folder '{output_dir}' is not empty. Use --force to reuse it.")
     ensure_dir(output_dir)
