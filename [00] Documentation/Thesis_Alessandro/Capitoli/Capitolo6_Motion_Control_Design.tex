@@ -27,14 +27,11 @@ The robot pose in the global frame is defined as:
         x & y & \psi
     \end{bmatrix}^{T},
 \end{equation}
-where \(x\) and \(y\) are the robot position and \(\psi\) is the yaw angle. The
-controllers studied in this section are structured path-following controllers.
-They do not directly solve an optimization problem. Instead, they use geometric
-quantities such as path projection, path tangent, cross-track error, and
-along-track error.
+where \(x\) and \(y\) are the robot position and \(\psi\) is the yaw angle. The first two controllers are geometric and non-optimizing, they do not directly solve an optimization problem. Instead, they use geometric quantities such as path projection, path tangent, cross-track error, and along-track error. The third one (MPCC) is optimization-based.
+
+\vspace{0.2cm}
 
 Two controllers are analysed:
-
 \begin{itemize}
     \item the \textbf{Moving Reference proportional controller}, implemented as
     \texttt{moving\_reference\_p};
@@ -45,22 +42,20 @@ Two controllers are analysed:
 For each controller, the control law, the main parameters, the test setup, the
 quantitative results, and the experimental figures are reported.
 
+\newpage
+
 \section{Evaluation Protocol and Metrics}
 \label{sec:evaluation_protocol}
 
 The experiments are evaluated using the recorded path-following datasets stored
-in:
+in \texttt{Test/test\_results/}.
 
-\begin{itemize}
-    \item \texttt{Test/test\_results/RECTANGULAR\_test/};
-    \item \texttt{Test/test\_results/}.
-\end{itemize}
+\vspace{0.2cm}
 
 The main performance indicators are computed from the sampled tracking errors.
-For a generic error signal \(e_i\), with \(N\) samples, the root mean square
-error is:
+For a generic error signal \(e_i\), with \(N\) samples, we can calculate:
 
-The root mean square errot is:
+- The root mean square errot is:
 \begin{equation}
     \mathrm{RMSE}_{e}
     =
@@ -70,7 +65,7 @@ The root mean square errot is:
     }.
 \end{equation}
 
-The mean absolute error is:
+- The mean absolute error is:
 \begin{equation}
     \mathrm{MAE}_{e}
     =
@@ -78,12 +73,14 @@ The mean absolute error is:
     \sum_{i=1}^{N} |e_i|.
 \end{equation}
 
-The maximum absolute error is:
+- The maximum absolute error is:
 \begin{equation}
     e_{\max}
     =
     \max_{i=1,\dots,N} |e_i|.
 \end{equation}
+
+\vspace{0.2cm}
 
 The path progression ratio is used to understand how much of the reference path
 was covered during the test:
@@ -133,11 +130,12 @@ to:
         \dot{\gamma}_{\max}
     \right),
 \end{equation}
-
 where \(v_d\) is the desired path speed, \(k_{\gamma}\) is the progression gain,
 and \(e_{\parallel}\) is the along-track error. The saturation function limits
 the path progression between \(\dot{\gamma}_{\min}\) and
 \(\dot{\gamma}_{\max}\).
+
+\vspace{0.2cm}
 
 The position error in the global frame is:
 \begin{equation}
@@ -172,7 +170,6 @@ with:
         \sin\psi & \cos\psi
     \end{bmatrix}.
 \end{equation}
-
 The proportional control law is:
 \begin{equation}
     \begin{bmatrix}
@@ -185,7 +182,6 @@ The proportional control law is:
         k_y e_{b,y}
     \end{bmatrix}.
 \end{equation}
-
 The heading is controlled independently with a proportional law:
 \begin{equation}
     \omega
@@ -197,11 +193,13 @@ where:
 \begin{equation}
     e_{\psi}
     =
-    \mathrm{wrapToPi}(\psi_r - \psi).
+    \operatorname{wrap}_{[-\pi,\pi]}\!\left(\psi_{r}-\psi\right),
+    \qquad
+    e_{\psi}\in[-\pi,\pi].
 \end{equation}
-The function \(\mathrm{wrapToPi}(\cdot)\) maps an angle into the interval
-  \([-\pi,\pi]\). This is necessary because yaw angles are periodic, in this case the controller always uses the shortest angular error
-
+$\operatorname{wrap}_{[-\pi,\pi]}$ maps any angle to its principal
+value in $[-\pi,\pi]$, so that the heading controller uses the shortest angular error.
+\newline
 Finally, the command is saturated to respect the velocity limits:
 \begin{equation}
     v_x \in [-v_{x,\max}, v_{x,\max}],
@@ -210,12 +208,12 @@ Finally, the command is saturated to respect the velocity limits:
     \quad
     \omega \in [-\omega_{\max}, \omega_{\max}].
 \end{equation}
-
 This controller is simple and robust, but its performance strongly depends on
 the balance between the path progression speed and the feedback gains. If the
 virtual point moves too fast, the robot follows the path with a delay. If it
 moves too slowly, the robot can track accurately but the test becomes slower.
 
+\newpage
 \subsection{Test Parameters and Results}
 
 \noindent
@@ -230,7 +228,9 @@ moves too slowly, the robot can track accurately but the test becomes slower.
   \centering
   \caption{Moving Reference controller: main test parameters.}
   \label{tab:mref_parameters}
-  \small
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.00}
   \begin{tabular}{lccc}
   \toprule
   \textbf{Parameter} &
@@ -261,7 +261,9 @@ moves too slowly, the robot can track accurately but the test becomes slower.
   \centering
   \caption{Moving Reference controller: experimental results.}
   \label{tab:mref_experimental_results}
-  \small
+  \scriptsize
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{0.98}
   \begin{tabular}{lccc}
   \toprule
   \textbf{Metric} &
@@ -294,7 +296,7 @@ moves too slowly, the robot can track accurately but the test becomes slower.
     \centering
     \begin{subfigure}{\textwidth}
         \centering
-        \includegraphics[width=0.7\linewidth]{IMG/controller/MREFP/MR_R01_xy_map.png}
+        \includegraphics[width=0.8\linewidth]{IMG/controller/MREFP/MR_R01_xy_map.png}
         \caption{MR\_R01 xy map}
         \label{fig:MR_R01_xy_map}
     \end{subfigure}
@@ -303,7 +305,7 @@ moves too slowly, the robot can track accurately but the test becomes slower.
 
     \begin{subfigure}{\textwidth}
         \centering
-        \includegraphics[width=0.6\linewidth]{IMG/controller/MREFP/MR_R01_target_tracking_and_errors.png}
+        \includegraphics[width=0.7\linewidth]{IMG/controller/MREFP/MR_R01_target_tracking_and_errors.png}
         \caption{MR\_R01 tracking and errors}
         \label{fig:MR_R01_tracking_and_errors}
     \end{subfigure}
@@ -318,7 +320,7 @@ moves too slowly, the robot can track accurately but the test becomes slower.
     \centering
     \begin{subfigure}{\textwidth}
         \centering
-        \includegraphics[width=0.7\linewidth]{IMG/controller/MREFP/PR01_xy_map.png}
+        \includegraphics[width=0.8\linewidth]{IMG/controller/MREFP/PR01_xy_map.png}
         \caption{P\_R01 xy map}
         \label{fig:PR01_xy_map}
     \end{subfigure}
@@ -342,7 +344,7 @@ moves too slowly, the robot can track accurately but the test becomes slower.
     \centering
     \begin{subfigure}{\textwidth}
         \centering
-        \includegraphics[width=0.7\linewidth]{IMG/controller/MREFP/PR02_xy_map.png}
+        \includegraphics[width=0.8\linewidth]{IMG/controller/MREFP/PR02_xy_map.png}
         \caption{P\_R02 xy map}
         \label{fig:PR02_xy_map}
     \end{subfigure}
@@ -358,7 +360,7 @@ moves too slowly, the robot can track accurately but the test becomes slower.
     
     \vspace{0.2em}
     \caption{Experimental results for P\_R02 scenario.} 
-    \label{fig:PR01_general}
+    \label{fig:PR02_general}
 \end{figure}
 
 \section{Linear Segment Controller}
@@ -491,7 +493,9 @@ The yaw motion is controlled separately:
     \omega
     =
     k_{\psi}
-    \mathrm{wrapToPi}(\psi_r - \psi).
+    \operatorname{wrap}_{[-\pi,\pi]}\!\left(\psi_{r}-\psi\right),
+    \qquad
+    \omega\in[-\pi,\pi].
 \end{equation}
 
 This formulation is useful for an omnidirectional robot because longitudinal
@@ -726,23 +730,18 @@ The results demonstrate a direct correlation between target velocity and trackin
     \label{fig:LIN_05_general}
 \end{figure}
 
-% Section to append to Chapter 6 after the Linear Segment controller.
-% Required packages: booktabs, float, subcaption.
-
-% Section to append to Chapter 6 after the Linear Segment controller.
-% Required packages: booktabs, float, subcaption.
-% Code excerpts use the standard LaTeX verbatim environment.
-
 \section{Nonlinear Model Predictive Contouring Controller}
 \label{sec:nonlinear_mpcc_controller}
 
-This section describes the predictive controller used in the experimental.  The objective of the controller is not only to
+This section describes the predictive controller used in the experimental tests.  The objective of the controller is not only to
 reduce the instantaneous Cartesian error with respect to a moving point, but to
 choose a velocity command by considering the future evolution of the robot over a
 short horizon.  This is the main difference with the previous geometric
 controllers: the command is selected by balancing path accuracy, path
 progression, command effort and command smoothness in the same optimization
 problem.
+
+\vspace{0.2cm}
 
 The formulation is inspired by MPC trajectory-tracking approaches for
 omnidirectional mobile robots.  In those approaches a model of the robot is used
@@ -829,10 +828,16 @@ robot:
     \left(\cos\psi_k\,v_{x,k}-\sin\psi_k\,v_{y,k}\right), \\
     y_{k+1} &= y_k + \Delta t
     \left(\sin\psi_k\,v_{x,k}+\cos\psi_k\,v_{y,k}\right), \\
-    \psi_{k+1} &= \mathrm{wrapToPi}(\psi_k + \Delta t\,\omega_k), \\
-    \gamma_{k+1} &= \gamma_k + \Delta t\,\dot{\gamma}_k .
+    \psi_{k+1} &= \operatorname{wrap}_{[-\pi,\pi]}
+    \!\left(\psi_k + \Delta t\,\omega_k\right), \\
+    \gamma_{k+1} &= \gamma_k + \Delta t\,\dot{\gamma}_k,
 \end{aligned}
+\qquad
+\psi_{k+1}\in[-\pi,\pi].
 \end{equation}
+
+\vspace{0.2cm}
+
 This model is intentionally simple: it assumes that the omnidirectional platform
 can track the commanded planar velocity directly.  Therefore, wheel dynamics,
 slip, actuator dead zones and low-level loop delays are not part of the
@@ -861,9 +866,13 @@ or behind the virtual reference point along the path.  The contouring error
 \(e_c\) measures the lateral deviation from the path and is the most important
 quantity for geometric path following.  The heading error is
 \begin{equation}
-    e_{\psi,k}=\mathrm{wrapToPi}(\psi_r(\gamma_k)-\psi_k).
+    e_{\psi,k}
+    =
+    \operatorname{wrap}_{[-\pi,\pi]}
+    \!\left(\psi_r(\gamma_k)-\psi_k\right),
+    \qquad
+    e_{\psi,k}\in[-\pi,\pi].
 \end{equation}
-
 The same decomposition can be seen in the available path-following code used for
 the Linear Segment controller.  The controller computes the tangent, builds the
 normal vector, and projects the Cartesian error onto both directions:
@@ -905,9 +914,13 @@ The negative term \(-q_p\dot{\gamma}_k\) rewards advancement along the path.  Th
 \(r\) terms penalize large velocity commands, while the \(r_\Delta\) terms
 penalize command increments.  Penalizing increments is important in practice
 because it reduces abrupt changes in \texttt{cmd\_vel} without forcing the
-absolute velocity to be unnecessarily small.  A terminal cost is also added to
+absolute velocity to be unnecessarily small.  
+
+\begin{comment}
+A terminal cost is also added to
 the last predicted contouring and lag errors, so the final state of the rollout
 is encouraged to remain close to the path.
+\end{comment}
 
 \subsection{Implementation Structure}
 
@@ -1119,7 +1132,7 @@ Main configuration
 \label{tab:mpcc_vector_parameters}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.05}
+\renewcommand{\arraystretch}{0.90}
 \begin{tabular}{ll}
 \toprule
 \textbf{Code} & \textbf{Values} \\
@@ -1139,6 +1152,8 @@ S2 & \((v_x,v_y,\omega,\dot{\gamma})_{\mathrm{samples}}=(5,5,5,7)\) \\
 \caption{Nonlinear MPCC controller: experimental results of the selected tests.}
 \label{tab:mpcc_experimental_results}
 \scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.90}
 \begin{tabular}{lcccccc}
 \toprule
 \textbf{Metric} &
@@ -1198,8 +1213,6 @@ tuning: encouraging too much progression produces faster motion but degrades the
 geometric quality of the trajectory.
 
 \subsection{Experimental Figures}
-
-\newpage
 \begin{figure}[H]
     \centering
     \begin{subfigure}{\textwidth}
@@ -1213,7 +1226,7 @@ geometric quality of the trajectory.
 
     \begin{subfigure}{\textwidth}
         \centering
-        \includegraphics[width=0.7\linewidth]{IMG/controller/MPC/MPC_01_track_error.png}
+        \includegraphics[width=0.6\linewidth]{IMG/controller/MPC/MPC_01_track_error.png}
         \caption{MPC\_01 tracking and errors}
         \label{fig:MPC_01_tracking_and_errors}
     \end{subfigure}
@@ -1221,7 +1234,6 @@ geometric quality of the trajectory.
     \label{fig:MPC_01_general}
 \end{figure}
 
-\newpage
 \begin{figure}[H]
     \centering
     \begin{subfigure}{\textwidth}
@@ -1243,7 +1255,6 @@ geometric quality of the trajectory.
     \label{fig:MPC_02_general}
 \end{figure}
 
-\newpage
 \begin{figure}[H]
     \centering
     \begin{subfigure}{\textwidth}
@@ -1265,7 +1276,6 @@ geometric quality of the trajectory.
     \label{fig:MPC_03_general}
 \end{figure}
 
-\newpage
 \begin{figure}[H]
     \centering
     \begin{subfigure}{\textwidth}
@@ -1309,7 +1319,6 @@ geometric quality of the trajectory.
     \label{fig:MPC_05_general}
 \end{figure}
 
-\newpage
 \begin{figure}[H]
     \centering
     \begin{subfigure}{\textwidth}
@@ -1460,8 +1469,8 @@ tests.}
 \(\mathrm{RMSE}_{e_l}\) [m] &
 \(\mathrm{MAE}_{e_l}\) [m] \\
 \midrule
-LIN-04 & 4.548 & 50.14 & 0.0115 & 0.0086 & 0.0367 & 0.0003 & 0.0002 \\
-LIN-05 & 4.548 & 38.86 & 0.0259 & 0.0210 & 0.0646 & 0.0010 & 0.0005 \\
+LIN-04 & 4.537 & 27.39 & 0.0354 & 0.0300 & 0.0772 & 0.0008 & 0.0005 \\
+  LIN-05 & 4.537 & 22.58 & 0.0469 & 0.0392 & 0.1166 & 0.0011 & 0.0006 \\
 \midrule
 MPC-05 & 4.534 & 35.39 & 0.0170 & 0.0144 & 0.0357 & 0.0666 & 0.0587 \\
 MPC-06 & 4.534 & 21.53 & 0.0330 & 0.0257 & 0.0705 & 0.1105 & 0.1039 \\
@@ -1473,17 +1482,19 @@ MPC-06 & 4.534 & 21.53 & 0.0330 & 0.0257 & 0.0705 & 0.1105 & 0.1039 \\
 \end{table}
 
 The first comparison considers two Linear Segment runs. The slower configuration
-LIN-R05 achieves the best contouring performance. Increasing the velocity in
-LIN-R06 reduces the duration from \(50.14~\mathrm{s}\) to
+LIN-05 achieves the best contouring performance. Increasing the velocity in
+LIN-06 reduces the duration from \(50.14~\mathrm{s}\) to
 \(38.86~\mathrm{s}\), but the maximum contouring error increases from
 \(0.0367~\mathrm{m}\) to \(0.0646~\mathrm{m}\), which is almost doubled.
 This confirms that the Linear Segment controller is very accurate at moderate
 speed, but its lateral tracking quality degrades as the motion becomes more
 aggressive.
 
-The second comparison considers two MPCC runs. MPC-R05 provides better geometric
+\vspace{0.2cm}
+
+The second comparison considers two MPCC runs. MPC-05 provides better geometric
 tracking, with \(\mathrm{RMSE}_{e_c}=0.0170~\mathrm{m}\) and
-\(\max |e_c|=0.0357~\mathrm{m}\). MPC-R06 is faster, completing the common
+\(\max |e_c|=0.0357~\mathrm{m}\). MPC-06 is faster, completing the common
 segment in \(21.53~\mathrm{s}\), but the contouring error increases to
 \(\mathrm{RMSE}_{e_c}=0.0330~\mathrm{m}\), with a maximum contouring error of
 \(0.0705~\mathrm{m}\). The lag error also increases significantly, from
@@ -1492,9 +1503,11 @@ segment in \(21.53~\mathrm{s}\), but the contouring error increases to
 MPCC configuration favours path advancement, but introduces a larger mismatch
 between the robot motion and the virtual path coordinate.
 
-The final cross-comparison evaluates the aggressive Linear Segment run LIN-R10
-against MPC-R06 over the same \(4.534~\mathrm{m}\) common segment. In this case,
-MPC-R06 achieves better lateral path-following accuracy:
+\vspace{0.2cm}
+
+The final cross-comparison evaluates the aggressive Linear Segment run LIN-05
+against MPC-06 over the same \(4.534~\mathrm{m}\) common segment. In this case,
+MPC-06 achieves better lateral path-following accuracy:
 \[
     \mathrm{RMSE}_{e_c}
     =
@@ -1502,7 +1515,7 @@ MPC-R06 achieves better lateral path-following accuracy:
     \quad \text{against} \quad
     0.0469~\mathrm{m}
 \]
-for LIN-R10. The maximum contouring error is also lower for MPC-R06:
+for LIN-05. The maximum contouring error is also lower for MPC-06:
 \[
     \max |e_c|
     =
@@ -1510,7 +1523,7 @@ for LIN-R10. The maximum contouring error is also lower for MPC-R06:
     \quad \text{against} \quad
     0.1166~\mathrm{m}.
 \]
-However, the lag error remains much larger for MPC-R06
+However, the lag error remains much larger for MPC-06
 \((\mathrm{RMSE}_{e_l}=0.1105~\mathrm{m})\) than for the Linear Segment
 controller \((\mathrm{RMSE}_{e_l}=0.0011~\mathrm{m})\). Therefore, the MPCC
 shows better lateral geometric tracking in the aggressive comparison, but still
@@ -1545,3 +1558,4 @@ LIN-R10 and the aggressive MPCC run MPC-R06. MPC-R06 reduces the contouring erro
 but presents a larger lag error.}
     \label{fig:compare_lin10_mpc06}
 \end{figure}
+
