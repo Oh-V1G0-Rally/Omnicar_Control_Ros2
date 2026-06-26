@@ -146,6 +146,45 @@ roslaunch sdpo_ratf_ros_driver sdpo_ratf_ros_driver.launch
        data for tunning the PI controller with, e.g., the _Internal Model_
        _Control (IMC) method_
 
+### ROS2 joystick autostart
+
+This package includes a minimal ROS2 boot profile for immediate manual control
+with the joystick. It starts the robot driver, cmd_vel bridge, wheel odometry and
+Logitech F710 joystick teleop through `omnicar_joy_control.launch.py`. Lidar,
+localization and waypoint control are disabled by default in the systemd profile
+to keep startup focused on safe manual motion.
+
+After building and sourcing the workspace, test the launch manually:
+
+```sh
+ros2 launch sdpo_ratf_driver omnicar_joy_control.launch.py \
+  robot_id:=omnicar \
+  driver_port:=/dev/omnicar_esp32 \
+  joy_dev:=/dev/input/js0 \
+  use_lidar:=false \
+  use_localization:=false
+```
+
+To enable startup at boot, install the example files and adjust the environment
+file if device names differ on the robot:
+
+```sh
+sudo mkdir -p /etc/omnicar
+sudo cp install/sdpo_ratf_driver/share/sdpo_ratf_driver/systemd/omnicar-joy-control.env.example \
+  /etc/omnicar/omnicar-joy-control.env
+sudo cp install/sdpo_ratf_driver/share/sdpo_ratf_driver/systemd/omnicar-joy-control.service.example \
+  /etc/systemd/system/omnicar-joy-control.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now omnicar-joy-control.service
+```
+
+Check the service with:
+
+```sh
+systemctl status omnicar-joy-control.service
+journalctl -u omnicar-joy-control.service -f
+```
+
 ## Contacts
 
 If you have any questions or you want to know more about this work, please

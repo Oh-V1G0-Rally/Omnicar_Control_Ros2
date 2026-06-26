@@ -13,6 +13,7 @@ def generate_launch_description():
     use_cmd_vel_bridge = LaunchConfiguration("use_cmd_vel_bridge")
     use_lidar = LaunchConfiguration("use_lidar")
     use_localization = LaunchConfiguration("use_localization")
+    use_waypoint_controller = LaunchConfiguration("use_waypoint_controller")
     driver_port = LaunchConfiguration("driver_port")
     lidar_port = LaunchConfiguration("lidar_port")
     joy_dev = LaunchConfiguration("joy_dev")
@@ -47,6 +48,10 @@ def generate_launch_description():
             default_value="true",
         ),
         DeclareLaunchArgument(
+            "use_waypoint_controller",
+            default_value="false",
+        ),
+        DeclareLaunchArgument(
             "lidar_port",
             default_value="/dev/omnicar_lidar",
         ),
@@ -74,6 +79,7 @@ def generate_launch_description():
                 "use_cmd_vel_bridge": use_cmd_vel_bridge,
                 "use_lidar": use_lidar,
                 "use_localization": use_localization,
+                "use_waypoint_controller": use_waypoint_controller,
                 "driver_port": driver_port,
                 "lidar_port": lidar_port,
                 "joy_dev": joy_dev,

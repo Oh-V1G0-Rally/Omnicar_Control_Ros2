@@ -132,6 +132,21 @@ if("$ENV{ROS_VERSION}" STREQUAL "2")
       PATTERN "*.launch.xml"
   )
 
+  install(
+    DIRECTORY sh/
+    DESTINATION share/${PROJECT_NAME}/sh
+    USE_SOURCE_PERMISSIONS
+    FILES_MATCHING
+      PATTERN "*.sh"
+  )
+
+  install(
+    DIRECTORY systemd/
+    DESTINATION share/${PROJECT_NAME}/systemd
+    FILES_MATCHING
+      PATTERN "*.example"
+  )
+
   # Testing
   if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)

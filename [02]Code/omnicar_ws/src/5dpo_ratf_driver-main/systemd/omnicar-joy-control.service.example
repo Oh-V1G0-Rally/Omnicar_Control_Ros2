@@ -1,0 +1,16 @@
+[Unit]
+Description=OMNICAR ROS2 joystick control bringup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=c2sr
+Group=c2sr
+EnvironmentFile=-/etc/omnicar/omnicar-joy-control.env
+ExecStart=/home/c2sr/Omnicar_Control_Ros2/[02]Code/omnicar_ws/install/sdpo_ratf_driver/share/sdpo_ratf_driver/sh/ros2/start_omnicar_joy_control.sh
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
